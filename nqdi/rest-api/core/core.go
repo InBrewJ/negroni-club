@@ -27,3 +27,7 @@ func QualityIndex() Nqdi {
 
 	return firstNqdi
 }
+
+func GetIndexFromStore(id int) string {
+	return "Not implemented"
+}

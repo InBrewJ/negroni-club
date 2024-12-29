@@ -4,9 +4,9 @@ import (
 	"testing"
 )
 
-func TestHello(t *testing.T) {
-	result := Hello("world")
-	if result != "Hello world" {
-		t.Error("Expected Hello to append 'world'")
+func TestSmoke(t *testing.T) {
+	result := Smoke()
+	if result != "fire!" {
+		t.Error("Expected Smoke to return 'fire'")
 	}
 }

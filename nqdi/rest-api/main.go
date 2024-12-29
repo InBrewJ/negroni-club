@@ -13,6 +13,10 @@ import (
 
 const AppUrl = "http://localhost:19000"
 
+func Smoke() string {
+	return "fire!"
+}
+
 func main() {
 	r := gin.Default()
 
