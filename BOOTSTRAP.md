@@ -29,6 +29,13 @@
 npx create-nx-workspace@latest --preset=expo --appName=nqdi
 ```
 
+Auth0 with Expo / React native:
+
+- not compatible with Expo Go? (I'm not sure this matters so much...)
+
+https://auth0.com/docs/quickstart/native/react-native-expo/interactive
+https://auth0.com/docs/quickstart/native/react-native-expo/00-login
+
 ## Adding the GIN/GORM HTTP API as an Nx module
 
 - https://github.com/nx-go/nx-go
@@ -37,6 +44,10 @@ npx create-nx-workspace@latest --preset=expo --appName=nqdi
 npx nx add @nx-go/nx-go
 npx nx g @nx-go/nx-go:application rest-api
 ```
+
+Auth0:
+
+https://dev.to/ksivamuthu/auth0-jwt-middleware-in-go-gin-web-framework-37mj
 
 ## Terrform with Go CDK
 

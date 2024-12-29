@@ -8,16 +8,22 @@ import {
   Text,
   StatusBar,
   TouchableOpacity,
-  Linking,
 } from 'react-native';
-import Svg, { G, Path } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 
 const API_URL = "http://localhost:8080"
+
+interface Location {
+  lat: number
+  long: number
+}
 
 export const App = () => {
   const [whatsNextYCoord, setWhatsNextYCoord] = useState<number>(0);
   const [pingResponse, setPingResponse] = useState<string>("Waiting...")
   const [nqdiResponse, setNqdiResponse] = useState<string>("NQDI?")
+  const [recentNegroniResponse, setRecentNegroniResponse] = useState<string>("Where is it?")
+  const [recentNegroniLocation, setRecentNegroniLocation] = useState<Location | null>(null)
   const scrollViewRef = useRef<null | ScrollView>(null);
 
   const fetchPing = async () => {
@@ -27,12 +33,26 @@ export const App = () => {
       setPingResponse(json.message);
       setNqdiResponse(JSON.stringify(json.nqdi))
     } catch (error) {
-      setPingResponse(`Error! ${error}`)
+      setPingResponse(`Ping error! ${error}`)
+      setNqdiResponse(`NQDI error! ${error}`)
+    }
+  }
+
+  const fetchRecent = async () => {
+    try {
+      const response = await fetch(`${API_URL}/nqdi/recent`)
+      const json = await response.json();
+      const {Lat, Long} = json.nqdi
+      setRecentNegroniLocation({lat: Lat, long: Long})
+      setRecentNegroniResponse(JSON.stringify(json.nqdi))
+    } catch (error) {
+      setRecentNegroniResponse(`Recent NQDI error! ${error}`)
     }
   }
 
   useEffect(() => {
     fetchPing();
+    fetchRecent();
   }, []);
 
   return (
@@ -53,7 +73,7 @@ export const App = () => {
           <View style={styles.section}>
             <Text style={styles.textLg}>Do you like a Negroni?</Text>
             <Text style={styles.textMd}>{pingResponse}</Text>
-            <Text style={styles.textMd}>NQDI 1: {nqdiResponse}</Text>
+            <Text style={styles.textMd}>Dummy NQDI: {nqdiResponse}</Text>
             <Text
               style={[styles.textXL, styles.appTitleText]}
               testID="heading"
@@ -96,6 +116,42 @@ export const App = () => {
                   Find nearest decent Negroni
                 </Text>
               </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <View style={styles.hero}>
+              <View style={styles.heroTitle}>
+                <Svg
+                  width={32}
+                  height={32}
+                  stroke="hsla(162, 47%, 50%, 1)"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <Path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                  />
+                </Svg>
+                <Text style={[styles.textLg, styles.heroTitleText]}>
+                  Latest decent Negroni on the block...
+                </Text>
+                <View style={styles.section}>
+                  <Text style={[styles.textSm, styles.marginBottomMd]}>
+                    {recentNegroniResponse}
+                  </Text>
+                  <Text style={[styles.textSm, styles.marginBottomMd]}>
+                    Latitude: {recentNegroniLocation?.lat} &nbsp;&nbsp;
+                    Longitude: {recentNegroniLocation?.long} <br/>
+                  </Text>
+                  <Text style={[styles.textSm, styles.marginBottomMd]}>
+                  Map goes here...
+                  </Text>
+                </View>
+              </View>
             </View>
           </View>
 

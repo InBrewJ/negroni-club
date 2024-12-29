@@ -11,22 +11,28 @@ import (
 	"github.com/gin-contrib/cors"
 )
 
-const AppUrl = "http://localhost:19000"
+const LocalAppUrl = "http://localhost:19000"
+const LocalServeAppUrl = "http://localhost:8081"
+const ProdAppUrl = "https://nqdi.urawizard.com"
 
 func Smoke() string {
 	return "fire!"
 }
 
 func main() {
+	// database init (adapter?)
+	core.InitStore()
+
+	// gin init (port?)
 	r := gin.Default()
 
-	// CORS for https://foo.com and https://github.com origins, allowing:
-	// - PUT and PATCH methods
+	// CORS for *AppUrl origins, allowing:
+	// - GET methods
 	// - Origin header
 	// - Credentials share
 	// - Preflight requests cached for 12 hours
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{AppUrl},
+		AllowOrigins:     []string{LocalAppUrl, ProdAppUrl, LocalServeAppUrl},
 		AllowMethods:     []string{"GET"},
 		AllowHeaders:     []string{"Origin"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -37,8 +43,16 @@ func main() {
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong!",
-			"nqdi":    core.QualityIndex(),
+			"nqdi":    core.DummyQualityIndex(),
 		})
 	})
+
+	r.GET("/nqdi/recent", func(c *gin.Context) {
+		core.CreateRecentNqdi()
+		c.JSON(http.StatusOK, gin.H{
+			"nqdi": core.GetRecentNqdi(),
+		})
+	})
+
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
