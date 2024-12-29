@@ -1,3 +1,6 @@
 go 1.23
 
-use ./rest-api
+use (
+	./infra/rest-api-infra
+	./rest-api
+)

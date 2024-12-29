@@ -13,7 +13,6 @@ https://developer.hashicorp.com/terraform/tutorials/cdktf/cdktf-install?variants
 
 ```sh
 
-
 ```
 
 ## Docker Tutorial fixes
