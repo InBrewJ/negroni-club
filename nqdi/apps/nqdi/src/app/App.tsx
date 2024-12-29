@@ -11,48 +11,53 @@ import {
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
-const API_URL = "http://localhost:8080"
+const API_URL = 'http://localhost:8080';
+const API_URL_PROD = 'https://api.nqdi.urwizard.com';
 
 interface Location {
-  lat: number
-  long: number
+  lat: number;
+  long: number;
 }
 
 export const App = () => {
   const [whatsNextYCoord, setWhatsNextYCoord] = useState<number>(0);
-  const [pingResponse, setPingResponse] = useState<string>("Waiting...")
-  const [nqdiResponse, setNqdiResponse] = useState<string>("NQDI?")
-  const [recentNegroniResponse, setRecentNegroniResponse] = useState<string>("Where is it?")
-  const [recentNegroniLocation, setRecentNegroniLocation] = useState<Location | null>(null)
+  const [pingResponse, setPingResponse] = useState<string>('Waiting...');
+  const [nqdiResponse, setNqdiResponse] = useState<string>('NQDI?');
+  const [recentNegroniResponse, setRecentNegroniResponse] =
+    useState<string>('Where is it?');
+  const [recentNegroniLocation, setRecentNegroniLocation] =
+    useState<Location | null>(null);
   const scrollViewRef = useRef<null | ScrollView>(null);
 
   const fetchPing = async () => {
     try {
-      const response = await fetch(`${API_URL}/ping`)
+      const response = await fetch(`${API_URL}/ping`);
       const json = await response.json();
       setPingResponse(json.message);
-      setNqdiResponse(JSON.stringify(json.nqdi))
+      setNqdiResponse(JSON.stringify(json.nqdi));
     } catch (error) {
-      setPingResponse(`Ping error! ${error}`)
-      setNqdiResponse(`NQDI error! ${error}`)
+      setPingResponse(`Ping error! ${error}`);
+      setNqdiResponse(`NQDI error! ${error}`);
     }
-  }
+  };
 
   const fetchRecent = async () => {
     try {
-      const response = await fetch(`${API_URL}/nqdi/recent`)
+      const response = await fetch(`${API_URL}/nqdi/recent`);
       const json = await response.json();
-      const {Lat, Long} = json.nqdi
-      setRecentNegroniLocation({lat: Lat, long: Long})
-      setRecentNegroniResponse(JSON.stringify(json.nqdi))
+      const { Lat, Long } = json.nqdi;
+      setRecentNegroniLocation({ lat: Lat, long: Long });
+      setRecentNegroniResponse(JSON.stringify(json.nqdi));
     } catch (error) {
-      setRecentNegroniResponse(`Recent NQDI error! ${error}`)
+      setRecentNegroniResponse(`Recent NQDI error! ${error}`);
     }
-  }
+  };
 
   useEffect(() => {
     fetchPing();
     fetchRecent();
+    // Note to future self, have a look at react native paper:
+    // https://reactnativepaper.com/
   }, []);
 
   return (
@@ -145,10 +150,10 @@ export const App = () => {
                   </Text>
                   <Text style={[styles.textSm, styles.marginBottomMd]}>
                     Latitude: {recentNegroniLocation?.lat} &nbsp;&nbsp;
-                    Longitude: {recentNegroniLocation?.long} <br/>
+                    Longitude: {recentNegroniLocation?.long} <br />
                   </Text>
                   <Text style={[styles.textSm, styles.marginBottomMd]}>
-                  Map goes here...
+                    Map goes here...
                   </Text>
                 </View>
               </View>
@@ -166,7 +171,7 @@ export const App = () => {
               <Text style={[styles.textLg, styles.marginBottomMd]}>
                 Your next decent Negroni, coming soon...
               </Text>
-             </View>
+            </View>
           </View>
         </ScrollView>
       </SafeAreaView>

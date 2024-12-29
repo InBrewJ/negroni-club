@@ -37,3 +37,9 @@ cdktf deploy
 ## Nx commands
 
 (see project.json)
+
+## Next steps for (rest-api) cloud infra
+
+- Build rest api as Docker container
+- ECS Fargate + ALB (single task, low resources)
+- Route53 + ACM for ALB

@@ -21,18 +21,19 @@ It's the place where Negronis can be categorised, ranked and shared across the w
 - Nx (as a build system)
 - bun 1.1.42
   - bunx and bun install take A VERY LONG TIME, maybe something like pnpm?
+  - This might just be a PopOS / Ubuntu 20.04 thing, but who knows. Risky!
 - go 1.23.3
 
 ## What are the Operating Environment tools?
 
 - AWS (jason@urawizard account?)
-    - VPC
-    - ECS Fargate + ALB
-    - Route53
-    - CloudWatch + Alarms etc
-    - SNS
+  - VPC
+  - ECS Fargate + ALB
+  - Route53
+  - CloudWatch + Alarms etc
+  - SNS
 - Cockroach DB Cloud
-- Terraform CDK (Go bindings)
+- Terraform CDK (cdktf / Go bindings)
 - GitHub Actions
 - Expo
 
@@ -41,4 +42,3 @@ It's the place where Negronis can be categorised, ranked and shared across the w
 - https://nx.dev/getting-started/intro
 - https://nx.dev/nx-api/expo
 - https://docs.expo.dev/workflow/web/
-
