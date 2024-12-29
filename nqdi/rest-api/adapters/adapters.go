@@ -2,14 +2,15 @@ package adapters
 
 import (
 	"fmt"
-	"log"
 	"time"
+
+	"rest-api/secrets"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-const CockroachConnectionString = "SECRET_STRING"
+var CockroachConnectionString = secrets.GetSecretFromEnvFile("CCS")
 
 type Insight struct {
 	gorm.Model
@@ -77,40 +78,7 @@ func createAndStuff(db *gorm.DB) {
 	db.Model(&insight).Updates(map[string]interface{}{"Body": "I LURRVE YOUUUU and let us pray for Nina", "CollectionId": 89})
 }
 
-func delete(db *gorm.DB) {
-	// Delete - delete Insight
-	db.Where("collection_id = ?", 78).Delete(&Insight{})
-}
-
 func Connect(connectionString string) (*gorm.DB, error) {
 	db, err := gorm.Open(postgres.Open(connectionString), &gorm.Config{})
 	return db, err
-}
-
-func main() {
-	db, err := Connect(CockroachConnectionString)
-
-	if err != nil {
-		log.Fatal("failed to connect database", err)
-	}
-
-	// https://gorm.io/docs/
-
-	CreateSchema(db)
-	createAndStuff((db))
-	delete(db)
-
-	// Read all
-
-	var insights []Insight
-
-	result := db.Find(&insights)
-
-	s := fmt.Sprintf("Result len = %d", result.RowsAffected)
-	fmt.Println(s)
-
-	for _, insight := range insights {
-		fmt.Printf("%d: ", insight.ID)
-		fmt.Println(insight.Body)
-	}
 }

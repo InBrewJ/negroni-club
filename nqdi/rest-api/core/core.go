@@ -87,6 +87,7 @@ func CreateRecentNqdi() adapters.NegroniQualityDiscoveryIndex {
 	nqdi.Sweetness = 2
 	nqdi.Bite = 10
 
+	// House of Tides location
 	nqdi.Lat = "54.9679479"
 	nqdi.Long = "-1.6926649"
 	nqdi.Country = "UK"
