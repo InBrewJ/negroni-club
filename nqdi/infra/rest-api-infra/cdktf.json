@@ -5,7 +5,8 @@
   "projectId": "5d6ebb34-04ac-4dff-b3cb-9f532b8bdb49",
   "sendCrashReports": "true",
   "terraformProviders": [
-    "hashicorp/aws@~>4.0"
+    "hashicorp/aws@~>4.0",
+    "cockroachdb/cockroach@~> 1.11"
   ],
   "terraformModules": [],
   "context": {}
