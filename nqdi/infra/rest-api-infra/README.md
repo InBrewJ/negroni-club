@@ -45,3 +45,13 @@ Follow: https://developer.hashicorp.com/terraform/tutorials/cdktf/cdktf-build?va
 - Build rest api as Docker container
 - ECS Fargate + ALB (single task, low resources)
 - Route53 + ACM for ALB
+
+## Docs for cdktf aws provider
+
+- https://github.com/cdktf/cdktf-provider-aws/blob/main/docs/API.go.md
+
+## Next steps after that
+
+A separate cdktf stacks that deploys the same backend to a tiny Digital Ocean droplet (fun)
+
+This will at least provde that one infra directory can deploy to two different operating environments
