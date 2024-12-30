@@ -5,27 +5,36 @@ import (
 	"github.com/aws/jsii-runtime-go"
 	"github.com/hashicorp/terraform-cdk-go/cdktf"
 
-	"github.com/cdktf/cdktf-provider-docker-go/docker/v11/container"
-	"github.com/cdktf/cdktf-provider-docker-go/docker/v11/image"
-	dockerprovider "github.com/cdktf/cdktf-provider-docker-go/docker/v11/provider"
+	"log"
+
+	"github.com/cdktf/cdktf-provider-aws-go/aws/v19/instance"
+	awsprovider "github.com/cdktf/cdktf-provider-aws-go/aws/v19/provider"
+	"github.com/joho/godotenv"
 )
 
 func NewMyStack(scope constructs.Construct, id string) cdktf.TerraformStack {
+
+	env, err := godotenv.Read()
+
+	if err != nil {
+		log.Fatal("REST-API-INFRA ERROR: cannot load .env", err)
+	}
+
 	stack := cdktf.NewTerraformStack(scope, &id)
 
-	dockerprovider.NewDockerProvider(stack, jsii.String("docker"), &dockerprovider.DockerProviderConfig{})
-
-	dockerImage := image.NewImage(stack, jsii.String("nginxImage"), &image.ImageConfig{
-		Name:        jsii.String("nginx:latest"),
-		KeepLocally: jsii.Bool(false),
+	awsprovider.NewAwsProvider(stack, jsii.String("AWS"), &awsprovider.AwsProviderConfig{
+		Region:    jsii.String(env["AWS_REGION"]),
+		AccessKey: jsii.String(env["AWS_ACCESS_KEY_ID"]),
+		SecretKey: jsii.String(env["AWS_SECRET_ACCESS_KEY"]),
 	})
 
-	container.NewContainer(stack, jsii.String("nginxContainer"), &container.ContainerConfig{
-		Image: dockerImage.Name(),
-		Name:  jsii.String("tutorial"),
-		Ports: &[]*container.ContainerPorts{{
-			Internal: jsii.Number(80), External: jsii.Number(8000),
-		}},
+	instance := instance.NewInstance(stack, jsii.String("compute"), &instance.InstanceConfig{
+		Ami:          jsii.String("ami-0a628e1e89aaedf80"),
+		InstanceType: jsii.String("t2.micro"),
+	})
+
+	cdktf.NewTerraformOutput(stack, jsii.String("public_ip"), &cdktf.TerraformOutputConfig{
+		Value: instance.PublicIp(),
 	})
 
 	return stack
@@ -33,8 +42,12 @@ func NewMyStack(scope constructs.Construct, id string) cdktf.TerraformStack {
 
 func main() {
 	app := cdktf.NewApp(nil)
-
-	NewMyStack(app, "learn-cdktf-docker")
+	stack := NewMyStack(app, "aws_instance")
+	cdktf.NewRemoteBackend(stack, &cdktf.RemoteBackendConfig{
+		Hostname:     jsii.String("app.terraform.io"),
+		Organization: jsii.String("nqdi"),
+		Workspaces:   cdktf.NewNamedRemoteWorkspace(jsii.String("rest-api-infra")),
+	})
 
 	app.Synth()
 }

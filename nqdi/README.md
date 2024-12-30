@@ -24,6 +24,7 @@ Run all of these from the Nx project root:
 # Coming soon...
 ## But probably a shell script for now...
 ## Is it possible to provision one locally using Docker?
+## Or can we just use a postgres container? (probably)
 ### yes: https://www.cockroachlabs.com/docs/v24.3/install-cockroachdb-linux.html#install-docker
 ### But caveat emptor, apparently
 ```
@@ -44,3 +45,21 @@ Mapping lib:
 
 - https://github.com/teovillanueva/react-native-web-maps/blob/main/example/App.tsx
 - https://teovillanueva.github.io/react-native-web-maps/
+
+## Deploy
+
+All cdktf code (Go) is in the /infra directory
+
+...it remains to be seen how this all works in practice
+
+But in the sandbox, this is how to plan / deploy / destroy stuff:
+
+```sh
+npx nx plan rest-api-infra
+
+# Note - auto approved!
+npx nx deploy rest-api-infra
+
+# Note - auto approved!
+npx nx destroy rest-api-infra
+```
