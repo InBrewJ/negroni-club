@@ -88,10 +88,10 @@ func CreateRecentNqdi() adapters.NegroniQualityDiscoveryIndex {
 	nqdi.Bite = 10
 
 	// House of Tides location
-	nqdi.Lat = "54.9679479"
-	nqdi.Long = "-1.6926649"
+	nqdi.Lat = "54.9679758"
+	nqdi.Long = "-1.6102649"
 	nqdi.Country = "UK"
-	nqdi.DrinkerId = 1
+	nqdi.DrinkerId = 2
 
 	db.Where(adapters.NegroniQualityDiscoveryIndex{DrinkerId: nqdi.DrinkerId}).FirstOrCreate(&nqdi)
 

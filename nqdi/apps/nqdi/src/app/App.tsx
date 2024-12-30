@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
+import MapView, { Marker } from './components/map.web';
 
 const API_URL = 'http://localhost:8080';
 const API_URL_PROD = 'https://api.nqdi.urwizard.com';
@@ -46,8 +47,8 @@ export const App = () => {
       const response = await fetch(`${API_URL}/nqdi/recent`);
       const json = await response.json();
       const { Lat, Long } = json.nqdi;
-      setRecentNegroniLocation({ lat: Lat, long: Long });
-      setRecentNegroniResponse(JSON.stringify(json.nqdi));
+      setRecentNegroniLocation({ lat: Number(Lat), long: Number(Long) });
+      setRecentNegroniResponse(JSON.stringify(json.nqdi, null, 2));
     } catch (error) {
       setRecentNegroniResponse(`Recent NQDI error! ${error}`);
     }
@@ -59,6 +60,16 @@ export const App = () => {
     // Note to future self, have a look at react native paper:
     // https://reactnativepaper.com/
   }, []);
+
+  const recentNegroniExists =
+    (recentNegroniLocation?.long && recentNegroniLocation?.lat) || false;
+
+  console.log(
+    `exists: ${recentNegroniExists} lat: ${recentNegroniLocation?.lat} long: ${recentNegroniLocation?.long}`
+  );
+
+  // @ts-ignore
+  const mapRef = useRef<MapView>(null);
 
   return (
     <>
@@ -152,12 +163,48 @@ export const App = () => {
                     Latitude: {recentNegroniLocation?.lat} &nbsp;&nbsp;
                     Longitude: {recentNegroniLocation?.long} <br />
                   </Text>
-                  <Text style={[styles.textSm, styles.marginBottomMd]}>
-                    Map goes here...
-                  </Text>
                 </View>
               </View>
             </View>
+          </View>
+
+          <View style={styles.map}>
+            {!recentNegroniExists && (
+              <View>
+                <Text>Last Negroni not yet found...</Text>
+              </View>
+            )}
+            {recentNegroniExists && (
+              // @ts-ignore
+              <MapView
+                id={'same-map-id-1234'}
+                style={{ flex: 1 }}
+                provider="google"
+                googleMapsApiKey=".env::GOOGLE_MAPS_API_KEY"
+                minZoomLevel={9}
+                initialRegion={{
+                  latitude: recentNegroniLocation?.lat || 54.0,
+                  longitude: recentNegroniLocation?.long || 1.0,
+                  latitudeDelta: 0.0922,
+                  longitudeDelta: 0.0421,
+                }}
+                loadingFallback={
+                  <View>
+                    <Text>Loading...</Text>
+                  </View>
+                }
+              >
+                {/* @ts-ignore */}
+                <Marker
+                  coordinate={{
+                    latitude: recentNegroniLocation?.lat,
+                    longitude: recentNegroniLocation?.long,
+                  }}
+                  anchor={{ x: 0.5, y: 0.5 }}
+                  title={'House of Tides'}
+                />
+              </MapView>
+            )}
           </View>
 
           <View
@@ -243,6 +290,12 @@ const styles = StyleSheet.create({
     marginVertical: 12,
     marginHorizontal: 12,
   },
+  map: {
+    marginVertical: 12,
+    marginHorizontal: 12,
+    height: 400,
+    width: 400,
+  },
   shadowBox: {
     backgroundColor: 'white',
     borderRadius: 24,
@@ -300,6 +353,17 @@ const styles = StyleSheet.create({
   love: {
     marginTop: 12,
     justifyContent: 'center',
+  },
+  cluster: {
+    backgroundColor: 'salmon',
+    width: 20,
+    height: 20,
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  clusterText: {
+    fontWeight: '700',
   },
 });
 
