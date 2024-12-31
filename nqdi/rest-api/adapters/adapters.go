@@ -10,7 +10,9 @@ import (
 	"gorm.io/gorm"
 )
 
-var CockroachConnectionString = secrets.GetSecretFromEnvFile("CCS")
+// Note: secrets need to be from the env file OR os.GetEnv
+// for this service to work on Fargate / any container runtime
+var CockroachConnectionString = secrets.GetSecretFromEnvFile("CRDB_CONNECTION_STRING")
 
 type Insight struct {
 	gorm.Model

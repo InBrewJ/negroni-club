@@ -11,9 +11,11 @@ import (
 
 	crdb_cluster "cdk.tf/go/stack/generated/cockroachdb/cockroach/cluster"
 	crdb "cdk.tf/go/stack/generated/cockroachdb/cockroach/provider"
+	acmcertificate "github.com/cdktf/cdktf-provider-aws-go/aws/v19/acmcertificate"
 	alb "github.com/cdktf/cdktf-provider-aws-go/aws/v19/alb"
 	alblistener "github.com/cdktf/cdktf-provider-aws-go/aws/v19/alblistener"
 	albtargetgroup "github.com/cdktf/cdktf-provider-aws-go/aws/v19/albtargetgroup"
+	cloudwatchloggroup "github.com/cdktf/cdktf-provider-aws-go/aws/v19/cloudwatchloggroup"
 	awsecs "github.com/cdktf/cdktf-provider-aws-go/aws/v19/ecscluster"
 	ecsservice "github.com/cdktf/cdktf-provider-aws-go/aws/v19/ecsservice"
 	ecstaskdefinition "github.com/cdktf/cdktf-provider-aws-go/aws/v19/ecstaskdefinition"
@@ -34,7 +36,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func NewMyStack(scope constructs.Construct, id string) cdktf.TerraformStack {
+func SimpleInstanceStack(scope constructs.Construct, id string) cdktf.TerraformStack {
 
 	env, err := godotenv.Read()
 
@@ -67,6 +69,9 @@ func CockroachDbTest(scope constructs.Construct, id string) cdktf.TerraformStack
 	// cdktf provider add cockroachdb/cockroach
 	// correct import path for generated code living locally:
 	// "cdk.tf/go/stack/generated/cockroachdb/cockroach/provider"
+	//
+	// props to this blog:
+	// https://dev.to/aurelievache/learning-go-by-examples-part-12-deploy-go-apps-in-go-with-cdk-for-terraform-cdktf-533b
 
 	env, err := godotenv.Read()
 
@@ -201,6 +206,7 @@ func RestApiInfraFargate(scope constructs.Construct, id string) cdktf.TerraformS
 	alb_sg_ingress_rule_http := securitygroupingressrule.NewVpcSecurityGroupIngressRule(stack, jsii.String("nqdi-alb-sb-ingress-rule-http"), &securitygroupingressrule.VpcSecurityGroupIngressRuleConfig{
 		SecurityGroupId: alb_security_group.Id(),
 		FromPort:        jsii.Number(80),
+		ToPort:          jsii.Number(80),
 		IpProtocol:      jsii.String("tcp"),
 		CidrIpv4:        jsii.String("0.0.0.0/0"),
 	})
@@ -208,6 +214,7 @@ func RestApiInfraFargate(scope constructs.Construct, id string) cdktf.TerraformS
 	alb_sg_ingress_rule_https := securitygroupingressrule.NewVpcSecurityGroupIngressRule(stack, jsii.String("nqdi-alb-sb-ingress-rule-https"), &securitygroupingressrule.VpcSecurityGroupIngressRuleConfig{
 		SecurityGroupId: alb_security_group.Id(),
 		FromPort:        jsii.Number(443),
+		ToPort:          jsii.Number(443),
 		IpProtocol:      jsii.String("tcp"),
 		CidrIpv4:        jsii.String("0.0.0.0/0"),
 	})
@@ -251,10 +258,27 @@ func RestApiInfraFargate(scope constructs.Construct, id string) cdktf.TerraformS
 		},
 	})
 
+	// api.nqdi.urawizard.com cert
+	// might not work for the moment, needs DNS approval on the Ionos side
+
+	// v nice site for checking DNS propogation status
+	// https://www.whatsmydns.net/#CNAME/api.nqdi.urawizard.com
+
+	restApiCert := acmcertificate.NewAcmCertificate(stack, jsii.String("api-nqdi-cert"), &acmcertificate.AcmCertificateConfig{
+		DomainName:       jsii.String("api.nqdi.urawizard.com"),
+		ValidationMethod: jsii.String("DNS"),
+		Lifecycle: &cdktf.TerraformResourceLifecycle{
+			// see docs
+			// https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate
+			CreateBeforeDestroy: jsii.Bool(true),
+		},
+	})
+
 	listener_https := alblistener.NewAlbListener(stack, jsii.String("nqdi-alb-listener-https"), &alblistener.AlbListenerConfig{
 		LoadBalancerArn: alb.Arn(),
 		Port:            jsii.Number(443),
 		Protocol:        jsii.String("HTTPS"),
+		CertificateArn:  restApiCert.Arn(),
 		DefaultAction: &[]*alblistener.AlbListenerDefaultAction{
 			{Type: jsii.String("forward"),
 				TargetGroupArn: targetGroup.Arn()},
@@ -320,6 +344,10 @@ func RestApiInfraFargate(scope constructs.Construct, id string) cdktf.TerraformS
 	// NOTE!
 	// ECS logs do not work, need to specify a log group, no doubt
 
+	logGroup := cloudwatchloggroup.NewCloudwatchLogGroup(stack, jsii.String("nqdi-ecs-log-group"), &cloudwatchloggroup.CloudwatchLogGroupConfig{
+		Name: jsii.String("nqdi-ecs-task-logs"),
+	})
+
 	rawTaskDef := []byte(`[
 			{
 				"name": "golang-api-container",
@@ -339,7 +367,7 @@ func RestApiInfraFargate(scope constructs.Construct, id string) cdktf.TerraformS
 				"logConfiguration": {
 					"logDriver": "awslogs",
 					"options": {
-						"awslogs-group": "nqdi-ecs-task-logs",
+						"awslogs-group": "%s",
 						"awslogs-region": "%s",
 						"awslogs-stream-prefix": "golang-api"
 					}
@@ -347,9 +375,15 @@ func RestApiInfraFargate(scope constructs.Construct, id string) cdktf.TerraformS
 			}
 		]`)
 
-	tempImageUri := "inbrewj/nqdi-rest-api:0.0.1"
+	tempImageUri := "inbrewj/nqdi-rest-api:0.0.2"
 
-	taskDef := fmt.Sprintf(string(rawTaskDef), tempImageUri, env["CRDB_CONNECTION_STRING"], env["AWS_REGION"])
+	taskDef := fmt.Sprintf(
+		string(rawTaskDef),
+		tempImageUri,
+		env["CRDB_CONNECTION_STRING"],
+		*logGroup.Name(),
+		env["AWS_REGION"],
+	)
 
 	// Fargate Task Definition
 	taskDefinition := ecstaskdefinition.NewEcsTaskDefinition(stack, jsii.String("nqdi-fargate-task-definition"), &ecstaskdefinition.EcsTaskDefinitionConfig{
@@ -423,6 +457,7 @@ func RestApiInfraFargate(scope constructs.Construct, id string) cdktf.TerraformS
 		Value: alb.DnsName(),
 	})
 
+	// Add this to the allow list on the cockroachdb cluster
 	cdktf.NewTerraformOutput(stack, jsii.String("nat_gateway_ip"), &cdktf.TerraformOutputConfig{
 		Value: eip.PublicIp(),
 	})
@@ -432,8 +467,14 @@ func RestApiInfraFargate(scope constructs.Construct, id string) cdktf.TerraformS
 
 func main() {
 	app := cdktf.NewApp(nil)
+	// question:
+	// what happens if all three of these
+	// stacks are deployed at once?
+
+	// stack := SimpleInstanceStack(app, "simple_instance")
 	stack := RestApiInfraFargate(app, "rest_api_fargate")
 	// stack := CockroachDbTest(app, "cockroachdb_test")
+
 	cdktf.NewRemoteBackend(stack, &cdktf.RemoteBackendConfig{
 		Hostname:     jsii.String("app.terraform.io"),
 		Organization: jsii.String("nqdi"),
