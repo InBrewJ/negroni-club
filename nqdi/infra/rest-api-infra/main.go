@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
 	"github.com/hashicorp/terraform-cdk-go/cdktf"
@@ -25,8 +27,10 @@ import (
 	route "github.com/cdktf/cdktf-provider-aws-go/aws/v19/route"
 	routetable "github.com/cdktf/cdktf-provider-aws-go/aws/v19/routetable"
 	routetableassociation "github.com/cdktf/cdktf-provider-aws-go/aws/v19/routetableassociation"
+	sg "github.com/cdktf/cdktf-provider-aws-go/aws/v19/securitygroup"
 	subnet "github.com/cdktf/cdktf-provider-aws-go/aws/v19/subnet"
 	awsvpc "github.com/cdktf/cdktf-provider-aws-go/aws/v19/vpc"
+	securitygroupingressrule "github.com/cdktf/cdktf-provider-aws-go/aws/v19/vpcsecuritygroupingressrule"
 	"github.com/joho/godotenv"
 )
 
@@ -132,6 +136,14 @@ func RestApiInfraFargate(scope constructs.Construct, id string) cdktf.TerraformS
 		AvailabilityZone: jsii.String(env["AWS_REGION"] + "a"),
 	})
 
+	publicSubnet2 := subnet.NewSubnet(stack, jsii.String("nqdi-public-subnet2"), &subnet.SubnetConfig{
+		VpcId:            vpc.Id(),
+		CidrBlock:        jsii.String("10.0.2.0/24"),
+		AvailabilityZone: jsii.String(env["AWS_REGION"] + "b"),
+	})
+
+	// see https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip
+	// for use of the Domain config
 	eip := eip.NewEip(stack, jsii.String("nqdi-nat-eip"), &eip.EipConfig{
 		Vpc: jsii.Bool(true),
 	})
@@ -143,8 +155,14 @@ func RestApiInfraFargate(scope constructs.Construct, id string) cdktf.TerraformS
 
 	privateSubnet := subnet.NewSubnet(stack, jsii.String("nqdi-private-subnet"), &subnet.SubnetConfig{
 		VpcId:            vpc.Id(),
-		CidrBlock:        jsii.String("10.0.2.0/24"),
+		CidrBlock:        jsii.String("10.0.3.0/24"),
 		AvailabilityZone: jsii.String(env["AWS_REGION"] + "a"),
+	})
+
+	privateSubnet2 := subnet.NewSubnet(stack, jsii.String("nqdi-private-subnet2"), &subnet.SubnetConfig{
+		VpcId:            vpc.Id(),
+		CidrBlock:        jsii.String("10.0.4.0/24"),
+		AvailabilityZone: jsii.String(env["AWS_REGION"] + "b"),
 	})
 
 	routeTable := routetable.NewRouteTable(stack, jsii.String("nqdi-private-route-table"), &routetable.RouteTableConfig{
@@ -172,20 +190,46 @@ func RestApiInfraFargate(scope constructs.Construct, id string) cdktf.TerraformS
 	//  // ... (configure image build and push)
 	// })
 
+	// Security group(s?)
+
+	alb_security_group := sg.NewSecurityGroup(stack, jsii.String("nqdi-alb-sg"), &sg.SecurityGroupConfig{
+		VpcId:       vpc.Id(),
+		Description: jsii.String("Allow ingress to ALB 80 and 443"),
+		Name:        jsii.String("nqdi-alb-sg"),
+	})
+
+	alb_sg_ingress_rule_http := securitygroupingressrule.NewVpcSecurityGroupIngressRule(stack, jsii.String("nqdi-alb-sb-ingress-rule-http"), &securitygroupingressrule.VpcSecurityGroupIngressRuleConfig{
+		SecurityGroupId: alb_security_group.Id(),
+		FromPort:        jsii.Number(80),
+		IpProtocol:      jsii.String("tcp"),
+		CidrIpv4:        jsii.String("0.0.0.0/0"),
+	})
+
+	alb_sg_ingress_rule_https := securitygroupingressrule.NewVpcSecurityGroupIngressRule(stack, jsii.String("nqdi-alb-sb-ingress-rule-https"), &securitygroupingressrule.VpcSecurityGroupIngressRuleConfig{
+		SecurityGroupId: alb_security_group.Id(),
+		FromPort:        jsii.Number(443),
+		IpProtocol:      jsii.String("tcp"),
+		CidrIpv4:        jsii.String("0.0.0.0/0"),
+	})
+
+	alb_sg_ingress_rule_http.Count()
+	alb_sg_ingress_rule_https.Count()
+
 	// ALB
 	alb := alb.NewAlb(stack, jsii.String("nqdi-alb"), &alb.AlbConfig{
 		Name:             jsii.String("nqdi-alb"),
 		Internal:         jsii.Bool(false),
 		LoadBalancerType: jsii.String("application"),
-		SecurityGroups:   jsii.Strings(), // You might need to create a security group
-		Subnets:          &[]*string{publicSubnet.Id()},
+		SecurityGroups:   &[]*string{alb_security_group.Id()},
+		Subnets:          &[]*string{publicSubnet.Id(), publicSubnet2.Id()},
 	})
 
 	targetGroup := albtargetgroup.NewAlbTargetGroup(stack, jsii.String("nqdi-alb-target-group"), &albtargetgroup.AlbTargetGroupConfig{
-		Name:     jsii.String("nqdi-alb-target-group"),
-		Port:     jsii.Number(80),
-		Protocol: jsii.String("HTTP"),
-		VpcId:    vpc.Id(),
+		Name:       jsii.String("nqdi-alb-target-group"),
+		Port:       jsii.Number(80),
+		Protocol:   jsii.String("HTTP"),
+		VpcId:      vpc.Id(),
+		TargetType: jsii.String("ip"),
 		// Health check configuration
 		HealthCheck: &albtargetgroup.AlbTargetGroupHealthCheck{
 			Path:               jsii.String("/ping"), // Replace with your health check path
@@ -197,7 +241,7 @@ func RestApiInfraFargate(scope constructs.Construct, id string) cdktf.TerraformS
 		},
 	})
 
-	listener := alblistener.NewAlbListener(stack, jsii.String("nqdi-alb-listener"), &alblistener.AlbListenerConfig{
+	listener_http := alblistener.NewAlbListener(stack, jsii.String("nqdi-alb-listener-http"), &alblistener.AlbListenerConfig{
 		LoadBalancerArn: alb.Arn(),
 		Port:            jsii.Number(80),
 		Protocol:        jsii.String("HTTP"),
@@ -207,7 +251,18 @@ func RestApiInfraFargate(scope constructs.Construct, id string) cdktf.TerraformS
 		},
 	})
 
-	listener.Count()
+	listener_https := alblistener.NewAlbListener(stack, jsii.String("nqdi-alb-listener-https"), &alblistener.AlbListenerConfig{
+		LoadBalancerArn: alb.Arn(),
+		Port:            jsii.Number(443),
+		Protocol:        jsii.String("HTTPS"),
+		DefaultAction: &[]*alblistener.AlbListenerDefaultAction{
+			{Type: jsii.String("forward"),
+				TargetGroupArn: targetGroup.Arn()},
+		},
+	})
+
+	listener_http.Count()
+	listener_https.Count()
 
 	// ECS Cluster
 	cluster := awsecs.NewEcsCluster(stack, jsii.String("nqdi-ecs-cluster"), &awsecs.EcsClusterConfig{
@@ -262,19 +317,13 @@ func RestApiInfraFargate(scope constructs.Construct, id string) cdktf.TerraformS
 	// 	PolicyArn: jsii.String("arn:aws:iam::aws:policy/SecretsManagerReadWrite"),
 	// })
 
-	// Fargate Task Definition
-	taskDefinition := ecstaskdefinition.NewEcsTaskDefinition(stack, jsii.String("nqdi-fargate-task-definition"), &ecstaskdefinition.EcsTaskDefinitionConfig{
-		Family:                  jsii.String("nqdi-rest-api-task"),
-		Cpu:                     jsii.String("256"),
-		Memory:                  jsii.String("512"),
-		NetworkMode:             jsii.String("awsvpc"),
-		RequiresCompatibilities: jsii.Strings("FARGATE"),
-		ExecutionRoleArn:        executionRole.Arn(),
-		TaskRoleArn:             taskRole.Arn(),
-		ContainerDefinitions: jsii.String(`[
+	// NOTE!
+	// ECS logs do not work, need to specify a log group, no doubt
+
+	rawTaskDef := []byte(`[
 			{
 				"name": "golang-api-container",
-				"image": "` + /*ecrImage.ImageUri()*/ "DUDE_REPLACE_WITH_YOUR_IMAGE_URI" + `",
+				"image": "%s",
 				"portMappings": [
 					{
 						"containerPort": 80,
@@ -284,19 +333,40 @@ func RestApiInfraFargate(scope constructs.Construct, id string) cdktf.TerraformS
 				"environment": [
 					{
 						"name": "CRDB_CONNECTION_STRING",
-						"value": "GET_CRDB_CONNECTION_STRING"
+						"value": "%s"
 					}
 				],
 				"logConfiguration": {
 					"logDriver": "awslogs",
 					"options": {
 						"awslogs-group": "nqdi-ecs-task-logs",
-						"awslogs-region": "eu-central-1",
+						"awslogs-region": "%s",
 						"awslogs-stream-prefix": "golang-api"
 					}
 				}
 			}
-		]`),
+		]`)
+
+	tempImageUri := "inbrewj/nqdi-rest-api:0.0.1"
+
+	taskDef := fmt.Sprintf(string(rawTaskDef), tempImageUri, env["CRDB_CONNECTION_STRING"], env["AWS_REGION"])
+
+	// Fargate Task Definition
+	taskDefinition := ecstaskdefinition.NewEcsTaskDefinition(stack, jsii.String("nqdi-fargate-task-definition"), &ecstaskdefinition.EcsTaskDefinitionConfig{
+		Family:                  jsii.String("nqdi-rest-api-task"),
+		Cpu:                     jsii.String("256"),
+		Memory:                  jsii.String("512"),
+		NetworkMode:             jsii.String("awsvpc"),
+		RequiresCompatibilities: jsii.Strings("FARGATE"),
+		ExecutionRoleArn:        executionRole.Arn(),
+		TaskRoleArn:             taskRole.Arn(),
+		ContainerDefinitions:    jsii.String(taskDef),
+	})
+
+	ecs_service_security_group := sg.NewSecurityGroup(stack, jsii.String("nqdi-ecs-service-sg"), &sg.SecurityGroupConfig{
+		VpcId:       vpc.Id(),
+		Description: jsii.String("Allow ingress from ALB and connection out to internet and cockroach"),
+		Name:        jsii.String("nqdi-ecs-service-sg"),
 	})
 
 	// ECS Service
@@ -307,9 +377,9 @@ func RestApiInfraFargate(scope constructs.Construct, id string) cdktf.TerraformS
 		DesiredCount:   jsii.Number(1),
 		LaunchType:     jsii.String("FARGATE"),
 		NetworkConfiguration: &ecsservice.EcsServiceNetworkConfiguration{
-			Subnets:        &[]*string{privateSubnet.Id()},
+			Subnets:        &[]*string{privateSubnet.Id(), privateSubnet2.Id()},
 			AssignPublicIp: jsii.Bool(false),
-			SecurityGroups: jsii.Strings(), // You might need to create a security group
+			SecurityGroups: &[]*string{ecs_service_security_group.Id()},
 		},
 		LoadBalancer: &[]*ecsservice.EcsServiceLoadBalancer{
 			{
@@ -353,13 +423,17 @@ func RestApiInfraFargate(scope constructs.Construct, id string) cdktf.TerraformS
 		Value: alb.DnsName(),
 	})
 
+	cdktf.NewTerraformOutput(stack, jsii.String("nat_gateway_ip"), &cdktf.TerraformOutputConfig{
+		Value: eip.PublicIp(),
+	})
+
 	return stack
 }
 
 func main() {
 	app := cdktf.NewApp(nil)
-	// stack := RestApiInfraFargate(app, "rest_api_fargate")
-	stack := CockroachDbTest(app, "cockroachdb_test")
+	stack := RestApiInfraFargate(app, "rest_api_fargate")
+	// stack := CockroachDbTest(app, "cockroachdb_test")
 	cdktf.NewRemoteBackend(stack, &cdktf.RemoteBackendConfig{
 		Hostname:     jsii.String("app.terraform.io"),
 		Organization: jsii.String("nqdi"),
