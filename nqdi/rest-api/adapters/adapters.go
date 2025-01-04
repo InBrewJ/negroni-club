@@ -12,6 +12,11 @@ import (
 
 // Note: secrets need to be from the env file OR os.GetEnv
 // for this service to work on Fargate / any container runtime
+//
+// https://gobyexample.com/environment-variables
+// https://github.com/joho/godotenv
+//
+// There is some notion of precedence, here
 var CockroachConnectionString = secrets.GetSecretFromEnvFile("CRDB_CONNECTION_STRING")
 
 type Insight struct {
