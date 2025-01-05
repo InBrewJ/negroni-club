@@ -11,6 +11,7 @@ import (
 	"github.com/gin-contrib/cors"
 )
 
+// env var candidates
 const LocalAppUrl = "http://localhost:19000"
 const LocalServeAppUrl = "http://localhost:8081"
 const ProdAppUrl = "https://nqdi.urawizard.com"
@@ -20,10 +21,12 @@ func Smoke() string {
 }
 
 func main() {
-	// database init (adapter?)
+	// database init (driven port + cockroach adapter?)
+	// maybe the adapter inits itself and is passed
+	// into the core?
 	core.InitStore()
 
-	// gin init (port?)
+	// gin init (through driving port?)
 	r := gin.Default()
 
 	// CORS for *AppUrl origins, allowing:

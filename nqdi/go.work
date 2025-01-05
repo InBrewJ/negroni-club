@@ -2,5 +2,5 @@ go 1.23.3
 
 use (
 	./infra/rest-api-infra
-	./rest-api
+	./services/web/rest-api
 )

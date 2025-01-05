@@ -1,8 +1,8 @@
 {
   "name": "rest-api",
-  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
-  "sourceRoot": "rest-api",
+  "sourceRoot": "services/web/rest-api",
   "tags": [],
   "targets": {
     "build": {
