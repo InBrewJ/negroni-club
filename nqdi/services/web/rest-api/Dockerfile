@@ -19,6 +19,6 @@ EXPOSE 80
 
 CMD ["/rest-api"]
 
-## docker build --tag inbrewj/nqdi-rest-api:0.0.3 .
+## docker build --tag inbrewj/nqdi-rest-api:0.0.2 .
 
-## docker push inbrewj/nqdi-rest-api:0.0.3
+## docker push inbrewj/nqdi-rest-api:0.0.2

@@ -12,8 +12,9 @@ import {
 import Svg, { Path } from 'react-native-svg';
 import MapView, { Marker } from './components/map.web';
 
-const API_URL = 'http://localhost:8080';
+const API_URL_LOCAL = 'http://localhost:8080';
 const API_URL_PROD = 'https://api.nqdi.urwizard.com';
+const API_URL = API_URL_PROD
 
 interface Location {
   lat: number;

@@ -22,14 +22,14 @@ func GetSecretFromEnvFile(k string) string {
 	myEnv, err := godotenv.Read()
 
 	if err != nil {
-		message := fmt.Sprintf("DOTENV FILE ERROR: Could not fetch secret with key %s", k)
+		message := fmt.Sprintf("ENV KEY ERROR: Could not fetch secret with key %s // ", k)
 		log.Fatal(message, err)
 	}
 
 	secretValue, ok := myEnv[k]
 
 	if !ok {
-		message := fmt.Sprintf("DOTENV KEY ERROR: Could not fetch secret with key %s", k)
+		message := fmt.Sprintf("ENV KEY ERROR: Could not fetch secret with key %s // ", k)
 		log.Fatal(message, err)
 	}
 

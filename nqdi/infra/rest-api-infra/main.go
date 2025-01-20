@@ -416,6 +416,10 @@ func RestApiInfraFargate(scope constructs.Construct, id string) cdktf.TerraformS
 					{
 						"name": "CRDB_CONNECTION_STRING",
 						"value": "%s"
+					},
+					{
+						"name": "INGRESS_PORT_PROD",
+						"value": "80"
 					}
 				],
 				"logConfiguration": {
@@ -429,7 +433,7 @@ func RestApiInfraFargate(scope constructs.Construct, id string) cdktf.TerraformS
 			}
 		]`)
 
-	tempImageUri := "inbrewj/nqdi-rest-api:0.0.2"
+	tempImageUri := "inbrewj/nqdi-rest-api:0.0.3"
 
 	taskDef := fmt.Sprintf(
 		string(rawTaskDef),
