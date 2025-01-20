@@ -2,11 +2,13 @@ package main
 
 import (
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
 
 	"rest-api/core"
+	"rest-api/secrets"
 
 	"github.com/gin-contrib/cors"
 )
@@ -18,6 +20,16 @@ const ProdAppUrl = "https://nqdi.urawizard.com"
 
 func Smoke() string {
 	return "fire!"
+}
+
+func GetIngressPort() string {
+	// https://gobyexample.com/environment-variables
+
+	if os.Getenv("LOCAL_DEV") == "TRUE" {
+		return secrets.GetSecretFromEnvFile("INGRESS_PORT_LOCAL")
+	}
+
+	return secrets.GetSecretFromEnvFile("INGRESS_PORT_PROD")
 }
 
 func main() {
@@ -57,5 +69,5 @@ func main() {
 		})
 	})
 
-	r.Run(":80") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	r.Run(":" + GetIngressPort()) // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
