@@ -8,8 +8,6 @@ And while the noodle is in progress, here:
 
 https://nqdi-noodle-test.s3.eu-central-1.amazonaws.com/index.html
 
-s7MiYsf!##tuS3MpPbZ#Rj#7Ue8LyE
-
 - I wonder if I can turn off the Fargate service after between 6am - 5pm to save money?
   - After all, The Hour of Negroni is after 5pm (UK time, hehe)
 
