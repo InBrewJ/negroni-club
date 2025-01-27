@@ -11,10 +11,17 @@ import {
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import MapView, { Marker } from './components/map.web';
+import { Dimensions } from 'react-native';
+const { height, width } = Dimensions.get('window');
+import { Platform } from 'react-native';
 
 const API_URL_LOCAL = 'http://localhost:8080';
-const API_URL_PROD = 'https://api.nqdi.urwizard.com';
-const API_URL = API_URL_PROD
+const API_URL_PROD = 'https://api.nqdi.urawizard.com';
+const API_URL = API_URL_PROD;
+const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+const isWeb = Platform.OS === 'web';
+const isMobile = Platform.OS !== 'web';
 
 interface Location {
   lat: number;
@@ -88,9 +95,8 @@ export const App = () => {
           style={styles.scrollView}
         >
           <View style={styles.section}>
-            <Text style={styles.textLg}>Do you like a Negroni?</Text>
-            <Text style={styles.textMd}>{pingResponse}</Text>
-            <Text style={styles.textMd}>Dummy NQDI: {nqdiResponse}</Text>
+            <Text style={styles.textLg}>Do you love a Negroni?</Text>
+            <Text style={styles.textSubtle}>from ping | {pingResponse}</Text>
             <Text
               style={[styles.textXL, styles.appTitleText]}
               testID="heading"
@@ -154,17 +160,17 @@ export const App = () => {
                   />
                 </Svg>
                 <Text style={[styles.textLg, styles.heroTitleText]}>
-                  Latest decent Negroni on the block...
+                  Latest decent Negroni on the blockroachDB
                 </Text>
-                <View style={styles.section}>
-                  <Text style={[styles.textSm, styles.marginBottomMd]}>
-                    {recentNegroniResponse}
-                  </Text>
-                  <Text style={[styles.textSm, styles.marginBottomMd]}>
-                    Latitude: {recentNegroniLocation?.lat} &nbsp;&nbsp;
-                    Longitude: {recentNegroniLocation?.long} <br />
-                  </Text>
-                </View>
+              </View>
+              <View style={styles.section}>
+                <Text style={[styles.textMd, styles.marginBottomMd]}>
+                  {recentNegroniResponse}
+                </Text>
+                <Text style={[styles.textSubtle, styles.marginBottomMd]}>
+                  Latitude: {recentNegroniLocation?.lat} &nbsp;&nbsp; Longitude:{' '}
+                  {recentNegroniLocation?.long}
+                </Text>
               </View>
             </View>
           </View>
@@ -175,14 +181,19 @@ export const App = () => {
                 <Text>Last Negroni not yet found...</Text>
               </View>
             )}
-            {recentNegroniExists && (
+            {recentNegroniExists && isMobile === true && (
+              <View style={styles.section}>
+                <Text>Cool mobile map coming soon...</Text>
+              </View>
+            )}
+            {recentNegroniExists && isWeb === true && (
               // @ts-ignore
               <MapView
                 id={'same-map-id-1234'}
                 style={{ flex: 1 }}
                 provider="google"
-                googleMapsApiKey=".env::GOOGLE_MAPS_API_KEY"
-                minZoomLevel={9}
+                googleMapsApiKey={GOOGLE_MAPS_API_KEY}
+                minZoomLevel={16}
                 initialRegion={{
                   latitude: recentNegroniLocation?.lat || 54.0,
                   longitude: recentNegroniLocation?.long || 1.0,
@@ -202,7 +213,7 @@ export const App = () => {
                     longitude: recentNegroniLocation?.long,
                   }}
                   anchor={{ x: 0.5, y: 0.5 }}
-                  title={'House of Tides'}
+                  title={'House of Tides: Best Negroni in Britain'}
                 />
               </MapView>
             )}
@@ -293,9 +304,11 @@ const styles = StyleSheet.create({
   },
   map: {
     marginVertical: 12,
-    marginHorizontal: 12,
-    height: 400,
-    width: 400,
+    // jank jank jank
+    marginHorizontal: Math.floor(width * 0.07),
+    height: Math.floor(height * 0.5),
+    width: Math.floor(width * 0.7),
+    // jank jank jank
   },
   shadowBox: {
     backgroundColor: 'white',

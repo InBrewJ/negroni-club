@@ -433,7 +433,8 @@ func RestApiInfraFargate(scope constructs.Construct, id string) cdktf.TerraformS
 			}
 		]`)
 
-	tempImageUri := "inbrewj/nqdi-rest-api:0.0.3"
+	// presumably this will be a build arg of some sort?
+	tempImageUri := "inbrewj/nqdi-rest-api:0.0.5"
 
 	taskDef := fmt.Sprintf(
 		string(rawTaskDef),

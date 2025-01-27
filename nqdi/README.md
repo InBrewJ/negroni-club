@@ -4,8 +4,27 @@ Finally, it lives...
 
 After much wrangling, find it here: https://nqdi.urawizard.com
 
+And while the noodle is in progress, here:
+
+https://nqdi-noodle-test.s3.eu-central-1.amazonaws.com/index.html
+
+s7MiYsf!##tuS3MpPbZ#Rj#7Ue8LyE
+
 - I wonder if I can turn off the Fargate service after between 6am - 5pm to save money?
   - After all, The Hour of Negroni is after 5pm (UK time, hehe)
+
+## Tools
+
+- AWS
+- CockroachDB
+- Go
+- TypeScript
+- Expo
+- Playwright
+- Nx
+- Hashicorp Cloud
+- EAS
+- Docker Hub
 
 ## Auth0 tips
 
@@ -57,9 +76,15 @@ But in the sandbox, this is how to plan / deploy / destroy stuff:
 ```sh
 npx nx plan rest-api-infra
 
-# Note - auto approved!
+# Note - DANGER!! auto approved!
 npx nx deploy rest-api-infra
 
-# Note - auto approved!
+# Note - DANGER!! auto approved!
 npx nx destroy rest-api-infra
 ```
+
+## Submit to Android / iOS app stores
+
+Last failure here:
+
+https://expo.dev/accounts/inbrewj/projects/nqdi/builds/f0f69b13-312c-4fc4-bba7-2c754b60e322

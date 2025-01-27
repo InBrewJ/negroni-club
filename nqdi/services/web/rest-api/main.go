@@ -3,7 +3,6 @@ package main
 import (
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -17,6 +16,7 @@ import (
 const LocalAppUrl = "http://localhost:19000"
 const LocalServeAppUrl = "http://localhost:8081"
 const ProdAppUrl = "https://nqdi.urawizard.com"
+const NoodleAppUrl = "https://nqdi-noodle-test.s3.eu-central-1.amazonaws.com"
 
 func Smoke() string {
 	return "fire!"
@@ -41,19 +41,11 @@ func main() {
 	// gin init (through driving port?)
 	r := gin.Default()
 
-	// CORS for *AppUrl origins, allowing:
-	// - GET methods
-	// - Origin header
-	// - Credentials share
-	// - Preflight requests cached for 12 hours
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{LocalAppUrl, ProdAppUrl, LocalServeAppUrl},
-		AllowMethods:     []string{"GET"},
-		AllowHeaders:     []string{"Origin"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
-	}))
+	// https://github.com/gin-contrib/cors?tab=readme-ov-file#using-defaultconfig-as-start-point
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{LocalAppUrl, ProdAppUrl, LocalServeAppUrl, NoodleAppUrl}
+
+	r.Use(cors.New(config))
 
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
