@@ -420,6 +420,10 @@ func RestApiInfraFargate(scope constructs.Construct, id string) cdktf.TerraformS
 					{
 						"name": "INGRESS_PORT_PROD",
 						"value": "80"
+					},
+					{
+						"name": "GIN_MODE",
+						"value": "release"
 					}
 				],
 				"logConfiguration": {

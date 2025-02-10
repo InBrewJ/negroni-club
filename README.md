@@ -1,10 +1,12 @@
-# NQDI as reference app
+# Negroni Club (NQDI) as reference app
 
 ## What is NQDI?
 
+Negroni Club = a place on the web to discover and share the greatest Negronis in the world
+
 NQDI = 'Negroni Quality Discovery Index'
 
-It's the place where Negronis can be categorised, ranked and shared across the world
+NQDI is the data and backend that informs the club. As time goes on, more things may be built on top of NQDI, not just Negroni Club!
 
 ## What is the stack?
 

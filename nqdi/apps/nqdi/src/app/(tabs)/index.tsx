@@ -10,14 +10,16 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-import MapView, { Marker } from './components/map.web';
+import MapView, { Marker } from '../components/map';
 import { Dimensions } from 'react-native';
-const { height, width } = Dimensions.get('window');
 import { Platform } from 'react-native';
 
-const API_URL_LOCAL = 'http://localhost:8080';
+const { height, width } = Dimensions.get('window');
+
+// const API_URL_LOCAL = 'http://localhost:8000';
+const API_URL_LOCAL = 'http://192.168.1.150:8000';
 const API_URL_PROD = 'https://api.nqdi.urawizard.com';
-const API_URL = API_URL_PROD;
+const API_URL = API_URL_LOCAL;
 const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
 
 const isWeb = Platform.OS === 'web';
@@ -31,7 +33,6 @@ interface Location {
 export const App = () => {
   const [whatsNextYCoord, setWhatsNextYCoord] = useState<number>(0);
   const [pingResponse, setPingResponse] = useState<string>('Waiting...');
-  const [nqdiResponse, setNqdiResponse] = useState<string>('NQDI?');
   const [recentNegroniResponse, setRecentNegroniResponse] =
     useState<string>('Where is it?');
   const [recentNegroniLocation, setRecentNegroniLocation] =
@@ -43,10 +44,8 @@ export const App = () => {
       const response = await fetch(`${API_URL}/ping`);
       const json = await response.json();
       setPingResponse(json.message);
-      setNqdiResponse(JSON.stringify(json.nqdi));
     } catch (error) {
       setPingResponse(`Ping error! ${error}`);
-      setNqdiResponse(`NQDI error! ${error}`);
     }
   };
 
@@ -102,7 +101,7 @@ export const App = () => {
               testID="heading"
               role="heading"
             >
-              Then welcome to the Negroni Quality Discovery Index (NQDI)
+              Negroni Club has your back. Feel the power of the NQDI.
             </Text>
           </View>
           <View style={styles.section}>
@@ -179,6 +178,7 @@ export const App = () => {
             {!recentNegroniExists && (
               <View>
                 <Text>Last Negroni not yet found...</Text>
+                <Text>The search continues</Text>
               </View>
             )}
             {recentNegroniExists && isMobile === true && (
