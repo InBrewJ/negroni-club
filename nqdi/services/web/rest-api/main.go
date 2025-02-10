@@ -17,6 +17,8 @@ const LocalAppUrl = "http://localhost:19000"
 const LocalServeAppUrl = "http://localhost:8081"
 const ProdAppUrl = "https://nqdi.urawizard.com"
 const NoodleAppUrl = "https://nqdi-noodle-test.s3.eu-central-1.amazonaws.com"
+const ClubAppUrlWww = "https://www.negroni.club"
+const ClubAppUrl = "https://negroni.club"
 
 func Smoke() string {
 	return "fire!"
@@ -43,7 +45,14 @@ func main() {
 
 	// https://github.com/gin-contrib/cors?tab=readme-ov-file#using-defaultconfig-as-start-point
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{LocalAppUrl, ProdAppUrl, LocalServeAppUrl, NoodleAppUrl}
+	config.AllowOrigins = []string{
+		LocalAppUrl,
+		ProdAppUrl,
+		LocalServeAppUrl,
+		NoodleAppUrl,
+		ClubAppUrlWww,
+		ClubAppUrl,
+	}
 
 	r.Use(cors.New(config))
 

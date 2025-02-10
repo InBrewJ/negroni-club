@@ -8,7 +8,7 @@ https://developer.hashicorp.com/terraform/tutorials/cdktf/cdktf-install?variants
 
 - Node
 - npm
-- cdktf-cli@latest (npm module)
+- cdktf-cli@latest (... which is an npm module)
 
 ```sh
 npm install --global cdktf-cli@latest

@@ -434,7 +434,9 @@ func RestApiInfraFargate(scope constructs.Construct, id string) cdktf.TerraformS
 		]`)
 
 	// presumably this will be a build arg of some sort?
-	tempImageUri := "inbrewj/nqdi-rest-api:0.0.5"
+	// also, in an ideal world, this lives in ECR rather than
+	// on the public docker hub (and associated IAM glue ofc)
+	tempImageUri := "inbrewj/nqdi-rest-api:0.0.6"
 
 	taskDef := fmt.Sprintf(
 		string(rawTaskDef),
@@ -566,6 +568,7 @@ func main() {
 
 	// stack := SimpleInstanceStack(app, "simple_instance")
 	stack := RestApiInfraFargate(app, "rest_api_fargate")
+
 	// stack := CockroachDbTest(app, "cockroachdb_test")
 
 	cdktf.NewRemoteBackend(stack, &cdktf.RemoteBackendConfig{
