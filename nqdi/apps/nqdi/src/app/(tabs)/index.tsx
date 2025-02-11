@@ -16,10 +16,12 @@ import { Platform } from 'react-native';
 
 const { height, width } = Dimensions.get('window');
 
+// Expo Go won't work with localhost
 // const API_URL_LOCAL = 'http://localhost:8000';
+// Expo Go WILL work with a predictable local IP address
 const API_URL_LOCAL = 'http://192.168.1.150:8000';
 const API_URL_PROD = 'https://api.nqdi.urawizard.com';
-const API_URL = API_URL_LOCAL;
+const API_URL = API_URL_PROD;
 const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
 
 const isWeb = Platform.OS === 'web';
@@ -206,8 +208,10 @@ export const App = () => {
                   </View>
                 }
               >
+                {/* TODO: figure out mobile maps */}
                 {/* @ts-ignore */}
                 <Marker
+                  /* @ts-ignore */
                   coordinate={{
                     latitude: recentNegroniLocation?.lat,
                     longitude: recentNegroniLocation?.long,

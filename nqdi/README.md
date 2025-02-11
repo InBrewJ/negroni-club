@@ -1,12 +1,8 @@
-# NQDI
+# Negroni Club (NQDI)
 
 Finally, it lives...
 
-After much wrangling, find it here: https://nqdi.urawizard.com
-
-And while the noodle is in progress, here:
-
-https://nqdi-noodle-test.s3.eu-central-1.amazonaws.com/index.html
+After much wrangling, find it here: https://negroni.club
 
 - I wonder if I can turn off the Fargate service after between 6am - 5pm to save money?
   - After all, The Hour of Negroni is after 5pm (UK time, hehe)
@@ -19,6 +15,7 @@ https://nqdi-noodle-test.s3.eu-central-1.amazonaws.com/index.html
 - TypeScript
 - Expo
 - Playwright
+- npm
 - Nx
 - Hashicorp Cloud
 - EAS
@@ -27,6 +24,12 @@ https://nqdi-noodle-test.s3.eu-central-1.amazonaws.com/index.html
 ## Auth0 tips
 
 https://dev.to/ksivamuthu/auth0-jwt-middleware-in-go-gin-web-framework-37mj
+
+## Install
+
+```sh
+npm install
+```
 
 ## Run
 
@@ -54,6 +57,9 @@ npx nx serve rest-api
 
 ### UI
 
+https://nx.dev/nx-api/expo
+https://docs.expo.dev/workflow/web/
+
 ```sh
 npx nx start nqdi
 ```
@@ -62,6 +68,18 @@ Mapping lib:
 
 - https://github.com/teovillanueva/react-native-web-maps/blob/main/example/App.tsx
 - https://teovillanueva.github.io/react-native-web-maps/
+
+Use Expo to build a web bundle:
+
+```sh
+nx export nqdi --platform web
+```
+
+And for all platforms:
+
+```sh
+nx export nqdi
+```
 
 ## Deploy
 

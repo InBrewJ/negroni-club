@@ -13,7 +13,9 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
@@ -27,8 +29,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "usesCleartextTraffic": true,
-      "package": "com.inbrewj.negroni-club"
+      "package": "com.inbrewj.negroniclub"
     },
     "web": {
       "favicon": "./assets/favicon.png",

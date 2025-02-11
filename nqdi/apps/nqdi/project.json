@@ -13,6 +13,14 @@
         }
       ]
     },
+    "export": {
+      "executor": "@nx/expo:export",
+      "inputs": [
+        {
+          "env": "EXPO_USE_METRO_WORKSPACE_ROOT"
+        }
+      ]
+    },
     "build:android:development": {
       "executor": "@nx/expo:build",
       "inputs": [
