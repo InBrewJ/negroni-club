@@ -61,7 +61,7 @@ https://nx.dev/nx-api/expo
 https://docs.expo.dev/workflow/web/
 
 ```sh
-npx nx start nqdi
+nx start nqdi
 ```
 
 Mapping lib:

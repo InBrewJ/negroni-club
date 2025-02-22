@@ -1,3 +1,9 @@
+# Notes
+
+## Contest of index.d.ts for the teovilla maps
+
+
+```ts
 /// <reference types="@teovilla/react-native-web-maps/dist/typescript/override-types" />
 
 // NOTE
@@ -5,3 +11,4 @@
 // nobody wants to see a type definition file while they're looking
 // for their next Negroni
 // Figure out how to load the typings from somewhere else
+```

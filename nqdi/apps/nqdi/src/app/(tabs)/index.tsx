@@ -103,7 +103,7 @@ export const App = () => {
               testID="heading"
               role="heading"
             >
-              Negroni Club has your back. Feel the power of the NQDI.
+              You're in the right place. Welcome to Negroni Club🍹
             </Text>
           </View>
           <View style={styles.section}>
@@ -309,9 +309,9 @@ const styles = StyleSheet.create({
   map: {
     marginVertical: 12,
     // jank jank jank
-    marginHorizontal: Math.floor(width * 0.07),
-    height: Math.floor(height * 0.5),
-    width: Math.floor(width * 0.7),
+    marginHorizontal: 12,
+    height: Math.floor(height * 0.6),
+    width: Math.floor(width * 0.6),
     // jank jank jank
   },
   shadowBox: {
