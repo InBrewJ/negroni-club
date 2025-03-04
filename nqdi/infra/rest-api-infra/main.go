@@ -1,5 +1,17 @@
 package main
 
+/*
+	Monthly AWS costs for negroni.club/api.nqdi.urawizard.com with minimal usage
+	- Cockroach: still free, minimal RUs used with this volume
+	- EC2 other (read: NAT gateway and friends) ~ $35
+	- Load balancer ~ $20
+	- Tax ~ $16
+	- VPC ~ $10
+	- ECS Fargate ~ $10
+	- Total: ~$90
+...and that's with a single very VERY small instance (cpu: 256 ram: 512)
+*/
+
 import (
 	"fmt"
 
