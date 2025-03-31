@@ -1,7 +1,6 @@
 # Notes
 
-## Contest of index.d.ts for the teovilla maps
-
+## Contents of index.d.ts for the teovilla maps
 
 ```ts
 /// <reference types="@teovilla/react-native-web-maps/dist/typescript/override-types" />
