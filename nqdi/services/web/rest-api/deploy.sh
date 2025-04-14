@@ -1,10 +1,11 @@
+VERSION="0.0.8"
+
+
 # (for the Vultr container registry version)
 docker login https://fra.vultrcr.com/ginbarrel -u secret -p secret
 
-# docker run -p 8080:80 -d -e CRDB_CONNECTION_STRING=secret -e GIN_MODE=release -e INGRESS_PORT_PROD=80 fra.vultrcr.com/ginbarrel/gin-backend:0.0.7
+# docker run -p 8080:80 -d -e CRDB_CONNECTION_STRING=secret -e GIN_MODE=release -e INGRESS_PORT_PROD=80 fra.vultrcr.com/ginbarrel/gin-backend:$VERSION
 
-VERSION="0.0.7"
-# TAG="inbrewj/nqdi-rest-api:$VERSION"
 TAG="fra.vultrcr.com/ginbarrel/gin-backend:$VERSION"
 
 # Build the dockerfile

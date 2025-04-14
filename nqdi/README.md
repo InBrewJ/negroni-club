@@ -81,6 +81,15 @@ And for all platforms:
 nx export nqdi
 ```
 
+Install new packages (e.g. TanStack form / something expo focussed) like:
+
+- go to the root level
+
+```sh
+npm i @tanstack/react-form
+npm i install expo-location
+```
+
 ## Deploy
 
 All cdktf code (Go) is in the /infra directory

@@ -13,7 +13,7 @@ NQDI is the data and backend that informs the club. As time goes on, more things
 For the simple / core three tier client / server approach:
 
 - Expo + TypeScript (as a web / native iOS/Android UI framework)
-- Golang + Gin + GORM as a golang centric REST API
+- Golang + Gin + GORM as a golang centric REST API (and any workers, etc)
 - Cockroach DB (as a database)
 
 ## What is the Development Environment?
@@ -31,16 +31,22 @@ For the simple / core three tier client / server approach:
 ## What are the Operating Environment tools?
 
 - Cloudflare (for DNS, geolocation based bot catching and apex -> www. 301 rerouting)
-- AWS (urawizard account)
-  - VPC
-  - ECS Fargate + ALB
-  - Route53
-  - CloudWatch + Alarms etc
-  - SNS
+- Compute hosting:
+  - AWS (urawizard account)
+    - VPC
+    - ECS Fargate + ALB
+    - Route53
+    - CloudWatch + Alarms etc
+    - SNS
+  - OR
+  - Vultr
+    - One load balancer
+    - Two conservative compute nodes
+    - Associated firewalls / static IPs, etc
 - Cockroach DB Cloud
 - Hashicorp cloud platform (not strictly necessary, just easy)
 - GitHub Actions
-- Expo (EAS)
+- Expo (EAS) for building Android and iOS apps
 
 ## What is the starting point?
 

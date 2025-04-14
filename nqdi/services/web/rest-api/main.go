@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
 
+	"rest-api/adapters"
 	"rest-api/core"
 	"rest-api/secrets"
 
@@ -16,7 +18,9 @@ import (
 const LocalAppUrl = "http://localhost:19000"
 const LocalServeAppUrl = "http://localhost:8081"
 const ProdAppUrl = "https://nqdi.urawizard.com"
-const NoodleAppUrl = "https://nqdi-noodle-test.s3.eu-central-1.amazonaws.com"
+
+// S3 HTTP URL, not in use
+// const NoodleAppUrl = "https://nqdi-noodle-test.s3.eu-central-1.amazonaws.com"
 const ClubAppUrlWww = "https://www.negroni.club"
 const ClubAppUrl = "https://negroni.club"
 
@@ -49,7 +53,6 @@ func main() {
 		LocalAppUrl,
 		ProdAppUrl,
 		LocalServeAppUrl,
-		NoodleAppUrl,
 		ClubAppUrlWww,
 		ClubAppUrl,
 	}
@@ -70,5 +73,64 @@ func main() {
 		})
 	})
 
-	r.Run(":" + GetIngressPort()) // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	r.POST("/nqdi", func(c *gin.Context) {
+		var newNqdi adapters.NegroniQualityDiscoveryIndex
+
+		if err := c.BindJSON(&newNqdi); err != nil {
+			c.JSON(http.StatusBadGateway, gin.H{
+				"error":   "Could not bind NQDI data from form to gorm",
+				"message": err,
+			})
+			return
+		}
+
+		// validation, is there something built in to Gin?
+		// Or something like Zod in JS land?
+
+		if newNqdi.Accessories > 10 && newNqdi.Accessories < 0 {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Accessories should be between 0 and 10",
+			})
+			return
+		}
+
+		if newNqdi.Bite > 10 && newNqdi.Bite < 0 {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Bite should be between 0 and 10",
+			})
+			return
+		}
+
+		if newNqdi.Sweetness > 10 && newNqdi.Sweetness < 0 {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Sweetness should be between 0 and 10",
+			})
+			return
+		}
+
+		if newNqdi.Mouthfeel > 10 && newNqdi.Mouthfeel < 0 {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Mouthfeel should be between 0 and 10",
+			})
+			return
+		}
+
+		fmt.Sprintf("New Negroni = %s", newNqdi)
+
+		// loose validation end, is there something built in to Gin?
+
+		var createResult, err = core.CreateNewNqdi(newNqdi)
+
+		if err != nil {
+			c.JSON(http.StatusBadGateway, gin.H{
+				"error":   "Could not create NQDI, datastore problem",
+				"message": err,
+			})
+			return
+		}
+
+		c.IndentedJSON(http.StatusCreated, createResult)
+	})
+
+	r.Run(":" + GetIngressPort())
 }

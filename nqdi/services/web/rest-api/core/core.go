@@ -73,6 +73,19 @@ func GetRecentNqdi() adapters.NegroniQualityDiscoveryIndex {
 	return nqdi
 }
 
+func CreateNewNqdi(newNqdi adapters.NegroniQualityDiscoveryIndex) (*adapters.NegroniQualityDiscoveryIndex, error) {
+	db, err := adapters.Connect(adapters.CockroachConnectionString)
+
+	if err != nil {
+		log.Println("failed to connect database", err)
+		return nil, err
+	}
+
+	db.Create(&newNqdi)
+
+	return &newNqdi, nil
+}
+
 func CreateRecentNqdi() adapters.NegroniQualityDiscoveryIndex {
 	db, err := adapters.Connect(adapters.CockroachConnectionString)
 

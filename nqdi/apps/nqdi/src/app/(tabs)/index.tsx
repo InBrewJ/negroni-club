@@ -14,17 +14,10 @@ import MapView, { Marker } from '../components/map';
 import { Dimensions } from 'react-native';
 import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
+import { API_URL, GOOGLE_MAPS_API_KEY } from '../backend/rest';
 import StaticSlider from '../components/StaticSlider';
 
 const { height, width } = Dimensions.get('window');
-
-// Expo Go won't work with localhost
-// const API_URL_LOCAL = 'http://localhost:8000';
-// Expo Go WILL work with a predictable local IP address
-const API_URL_LOCAL = 'http://192.168.1.150:8000';
-const API_URL_PROD = 'https://gin.negroni.club';
-const API_URL = API_URL_PROD;
-const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
 
 const isWeb = Platform.OS === 'web';
 const isMobile = Platform.OS !== 'web';
@@ -42,7 +35,7 @@ interface Nqdi {
   UpdatedAt: Date;
 }
 
-interface Negroni extends Nqdi {
+export interface Negroni extends Nqdi {
   Location: Location;
 }
 
@@ -184,6 +177,16 @@ export const App = () => {
                   }}
                 >
                   <Text style={[styles.textMd, styles.textCenter]}>Add</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.whatsNextButton}
+                  onPress={() => {
+                    router.push('/screens/location');
+                  }}
+                >
+                  <Text style={[styles.textMd, styles.textCenter]}>
+                    Locate?
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -430,7 +433,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     paddingVertical: 16,
     borderRadius: 8,
-    width: '40%',
+    width: '30%',
     marginTop: 24,
   },
   learning: {
