@@ -137,4 +137,5 @@ We'll see, I suppose.
 Digital Ocean App Platform console)
 # NEXT (live edit)
 Have a look at log forwarding to https://betterstack.com from App Platform, pricing seems attractive
+Also Grafana cloud, jeese: https://grafana.com/pricing/?src=k6io
 
