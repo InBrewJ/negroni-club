@@ -1,3 +1,5 @@
+# Note - ideally write this using Go and the built in unit tests
+
 frontend_response=$(curl -L -sS https://negroni.club | grep NQDI)
 
 errors=()
