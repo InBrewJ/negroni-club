@@ -135,3 +135,6 @@ can revert to enabling the Cloudflare proxy?
 We'll see, I suppose.
 (yep, after reverting the proxy settings, https://campari.negroni.club/ping still works fine and shows as 'active' on the
 Digital Ocean App Platform console)
+# NEXT (live edit)
+Have a look at log forwarding to https://betterstack.com from App Platform, pricing seems attractive
+
