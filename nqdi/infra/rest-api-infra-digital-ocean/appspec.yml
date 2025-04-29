@@ -1,0 +1,67 @@
+alerts:
+  - rule: DEPLOYMENT_FAILED
+  - rule: DOMAIN_FAILED
+domains:
+  - domain: gin.negroni.club
+    type: PRIMARY
+  - domain: campari.negroni.club
+    type: ALIAS
+egress:
+  type: DEDICATED_IP
+envs:
+  - key: CRDB_CONNECTION_STRING
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: EV[1:y4zrxA2leTWw5i6esSkbbXhpaztzXZDQ:I+emVq2toKlQ8vSYqSejlRXA4XParpqKZGVwAh0K183jGc61+6UoNvl8eCGgYpvjodL5zobIqbKkod9ERUWHPpAjT+jjVSYPo1+TbzZMhc5HEEjShWJTO5IZ1Nhshkxr/56YO+CAhHmCco8cAKIp4Z6xX0zzYWCRFM18yycEq/Pf3TeCk58GZYRkZTdv2wPe7YrcKZ5ZAjddJdS87MokDPKM4DEpu0kmO5A=]
+  - key: INGRESS_PORT_PROD
+    scope: RUN_AND_BUILD_TIME
+    value: '80'
+  - key: GIN_MODE
+    scope: RUN_AND_BUILD_TIME
+    value: release
+features:
+  - buildpack-stack=ubuntu-22
+ingress:
+  rules:
+    - component:
+        name: gin-backend
+      match:
+        path:
+          prefix: /
+name: gin
+region: fra
+services:
+  - autoscaling:
+      max_instance_count: 2
+      metrics:
+        cpu:
+          percent: 70
+      min_instance_count: 1
+    envs:
+      - key: GIN_MODE
+        scope: RUN_TIME
+        value: release
+      - key: INGRESS_PORT_PROD
+        scope: RUN_TIME
+        value: '80'
+      - key: CRDB_CONNECTION_STRING
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:CwsnbDi7Ixq9v7eFw/nZp2S5oY+sprzJ:pQu3zzy/tr6lZs48ojwKUFe8YiBu+7k520AZq8O0r6aqhPutsL6V2A8hhUdyXPJJ6jA7Hn7Ns0Xcz6IgnRNWudQq5hGeeSx2p7hkyV1YAZSy/3zit7k/rTkIIJWFbFvbfWxrIgezl0JjCBLGaCYUURQygujzt6NkLG7BUr6IxbCsyp3gkE+cQUjwthqWAu1lXB58y5km/5uE5Yvvb5ZCUwrjkNnHLQHWV3k=]
+    health_check:
+      failure_threshold: 3
+      http_path: /ping
+      initial_delay_seconds: 15
+      period_seconds: 10
+      port: 80
+      success_threshold: 1
+      timeout_seconds: 5
+    http_port: 80
+    image:
+      deploy_on_push:
+        enabled: true
+      registry_type: DOCR
+      repository: gin-backend
+      tag: 0.0.9
+    instance_size_slug: apps-d-1vcpu-0.5gb
+    name: gin-backend
