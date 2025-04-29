@@ -58,3 +58,80 @@ OR
 - Create a working, repeatable deployment pipeline (using GitHub actions)
 - Write some smoke tests
 - Write real unit tests for the REST API
+
+# 2025-04-28 21:38 UTC
+
+## Plan
+
+Contrary to the NEXT::OR items listen above, I've decided to move away from Vultr. Mainly because:
+
+- Yes, they're cheaper that Digital Ocean and more 'cloud native' than Ionos but they had a random outage in Frankfurt that
+  that led to downtime for negroni.club. I suppose this is acceptable, but their container registry interface didn't show
+  individual repos
+- They accept bitcoin as payment. Fine, maybe I'm a not down with the krypto kids kinda guy, but it made me uneasy
+- On balance, for the early stages of Occasio at least, maybe it is better to lean on something like AWS Beanstalk or
+  Digital Ocean App Platform, for speed if nothing else
+- The noVNC interface to Vultr compute is nice but it also made me feel a little bit queasy
+
+SO, today the plan is to get 'Gin' (the NQDI backend) up and running on Digital Ocean's app platform. No need to worry about
+load balancers, there's a scaling option, load balancer built in. The catch: it costs $25 for an egress IP. Which sort of puts it
+in the same cost bracket as AWS with the $35 NAT gateway standing charge. Ah well.
+
+If there's time to figure out some cdktf for the infra, that'd be cool. But don't sweat it if not. ClickOps will always be good enough
+for the first try.
+
+Other choices made today, after a burst of sanity:
+
+- cdktf is likely the wrong choice. The docs on Github I've perused are kinda towers of text
+- to enable multi cloud support, maybe it's best to stick with Terraform. What is the licensing issue here? Must read up
+- And, for the moment and for the sake of choosing boring, frugal, predictable tools, let's go with Digital Ocean
+- Terraform will allow us to migrate and spin up different infra on a different cloud provider anyway. It also enables something like a
+  'frugal' switch. If we're spending too much money, flip the switch and we revert to a barebones but still working setup.
+  That'd be cool.
+- https://www.hashicorp.com/en/pricing?tab=terraform (free for < 500 resources?)
+- https://www.terraform-best-practices.com/
+- https://www.digitalocean.com/products/app-platform
+
+## Solutions and Problems
+
+Mainly, ClickOps to create a container registry on Digital Ocean, push up the image
+
+Infra needed in Terraform:
+
+- Container registry (credentials as output? Is this in a separate workspace? (I think so))
+- App Platform with egress IP (output)
+
+NOTE that DO charges $5 a month for max 5GB storage. This may be more expensive than Vultr and AWS (almost certainly?)
+And again, remember the $25 a month charge for the egress IPs (hopefully there isn't one egress IP for each autoscale node? Hopefully?)
+
+For for autoscaling, we have:
+
+$5 (container registry)
+
+- (
+  $25 (for egress IP)
+  $29 (for smallest compute where autoscaling works)
+  ){PER NODE = $54}
+
+So that comes to $54.00 - $83.00 pcm (which is very clear on the Digital Ocean pricing)
+
+so, with container registry that's up tp $59 - $88 per month.
+
+If we can get free credits, cool. If not we can run a single droplet with nginx or a few droplets in front of a DO managed load balancer
+at a slightly more expensive cost than Vultr.
+
+The options, they exist.
+
+But does App Platform pay for itself in terms of autoscaling goodness? In the same fashion as CockroachDB?
+
+On App platform it's also worth noting that log exploration etc isn't great - the in built log viewer seems
+to only save the last 5 minutes. It also actively encourages you to forward logs to Datadog etc and also DO's own
+'Managed OpenSearch'. Damn and blast. AWS wins here too (with CloudWatch and Log Insights).
+
+Extra nugget of learning - it turns out that if DNS is handled by Cloudflare and proxy is turned on, domain's added to
+DO App Platform may not be recognised properly. Once the 'status' of the custom domain on Digital Ocean is 'Active', maybe one
+can revert to enabling the Cloudflare proxy?
+
+We'll see, I suppose.
+(yep, after reverting the proxy settings, https://campari.negroni.club/ping still works fine and shows as 'active' on the
+Digital Ocean App Platform console)

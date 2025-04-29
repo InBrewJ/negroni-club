@@ -61,8 +61,9 @@ func main() {
 
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"message": "pong!",
-			"nqdi":    core.DummyQualityIndex(),
+			"message":       "pong!",
+			"hiddenMessage": "pang!",
+			"nqdi":          core.DummyQualityIndex(),
 		})
 	})
 
