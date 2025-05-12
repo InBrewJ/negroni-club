@@ -25,7 +25,7 @@ For the simple / core three tier client / server approach:
 - node v22.12.0
 - npm v10.9.0
 - Nx (as a build system)
-- go 1.23.3
+- go 1.24.3
 - Terraform CDK (cdktf / Go bindings)
 
 ## What are the Operating Environment tools?

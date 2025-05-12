@@ -13,13 +13,16 @@ After much wrangling, find it here: https://negroni.club
 - CockroachDB
 - Go
 - TypeScript
-- Expo
-- Playwright
+- node.js
+- Playwright (installed as dependency by Nx?)
 - npm
 - Nx
+- Expo
 - Hashicorp Cloud
 - EAS
 - Docker Hub
+
+Run `./nqdi_docker.sh` to attempt to install these tools (not foolproof at the time of writing)
 
 ## Auth0 tips
 
@@ -61,7 +64,7 @@ https://nx.dev/nx-api/expo
 https://docs.expo.dev/workflow/web/
 
 ```sh
-nx start nqdi
+npx nx start nqdi
 ```
 
 Mapping lib:
