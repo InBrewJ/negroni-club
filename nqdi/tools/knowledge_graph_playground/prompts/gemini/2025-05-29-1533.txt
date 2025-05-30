@@ -1,0 +1,28 @@
+That worked like a damn charm, thank you. Now, I'd like to build a knowledge graph centred around the Negroni cocktail using the Go programming language. This is my vague idea so far:
+
+
+- Represents the constituent parts of a Negroni:
+
+- Gin
+
+- Sweet Vermouth
+
+- Campari
+
+- Ice
+
+- Orange
+
+- Drinking Glass
+
+- Table
+
+- Gin, Vermouth and Campari all comes in bottles, bottles are made of glass,
+
+- Drinking glasses are also made of glass
+
+
+I believe the final point about 'glass' forms a cycle in the graph.
+
+
+For now let's keep the graph in memory. I'd like to statically create the graph in code first and then print out some representation of the graph using ascii characters. How should I start?

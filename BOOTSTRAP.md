@@ -7,12 +7,10 @@
 - Go
   - https://go.dev/doc/install
 
-
 ## Nx / Expo
 
 - https://nx.dev/nx-api/expo
 - https://nx.dev/getting-started/installation
-
 
 ```sh
 # This command ran very, very slowly on JibWorks Mobile
@@ -41,6 +39,7 @@ https://auth0.com/docs/quickstart/native/react-native-expo/00-login
 - https://github.com/nx-go/nx-go
 
 ```sh
+# nx-go is a one time thing; it's an Nx plugin for Go libs / apps
 npx nx add @nx-go/nx-go
 npx nx g @nx-go/nx-go:application rest-api
 ```

@@ -135,7 +135,17 @@ can revert to enabling the Cloudflare proxy?
 We'll see, I suppose.
 (yep, after reverting the proxy settings, https://campari.negroni.club/ping still works fine and shows as 'active' on the
 Digital Ocean App Platform console)
+
 # NEXT (live edit)
+
 Have a look at log forwarding to https://betterstack.com from App Platform, pricing seems attractive
 Also Grafana cloud, jeese: https://grafana.com/pricing/?src=k6io
 
+# NEXT
+
+- If you haven't already, turn off the autoscaled App Platform, save yourself some cash eh
+- Write Terraform for Digital Ocean App Platform stuff (a non autoscaled one, cheapest possible)
+- Write a GitHub Actions pipeline for Gin (how do we do semver?)
+- Integrate Auth0 for the 'Add' button on the app + ask for location on add screen, get the map working again
+- Write a GitHub action for some semblance of TypeScript and Go tests, maybe Terraform tests (maybe)
+- Try and get the Android build working (I guess it has to work locally before it works on EAS)

@@ -3,4 +3,5 @@ go 1.24.3
 use (
 	./infra/rest-api-infra
 	./services/web/rest-api
+	./tools/knowledge_graph_playground
 )

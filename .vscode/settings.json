@@ -1,3 +1,6 @@
 {
-  "nxConsole.nxWorkspacePath": "nqdi"
+  "nxConsole.nxWorkspacePath": "nqdi",
+  "go.alternateTools": {
+    "go": "/usr/local/go/bin/go"
+  }
 }

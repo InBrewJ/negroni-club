@@ -20,6 +20,11 @@ const customConfig = {
     assetExts: assetExts.filter((ext) => ext !== 'svg'),
     sourceExts: [...sourceExts, 'cjs', 'mjs', 'svg'],
   },
+  // This doesn't seem to work, see
+  // https://stackoverflow.com/questions/68158968/how-to-change-expo-react-native-default-port-19000
+  server: {
+    port: 5000,
+  },
 };
 
 module.exports = withNxMetro(mergeConfig(defaultConfig, customConfig), {
