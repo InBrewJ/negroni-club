@@ -4,6 +4,7 @@ import { Stack } from 'expo-router'; // Optional: For setting screen options lik
 import { useForm } from '@tanstack/react-form';
 import { Negroni } from '../(tabs)';
 import { API_URL } from '../backend/rest';
+import { LoginButton } from '../components/LoginButton';
 
 export type NewNegroni = Omit<Negroni, 'UpdatedAt' | 'Location'> & {
   Lat: string;
@@ -125,6 +126,7 @@ export const ContributeScreen = () => {
         )}
       />
       {/* Your map component and other UI will eventually go here */}
+      <LoginButton />
     </View>
   );
 };

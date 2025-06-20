@@ -2,8 +2,8 @@
 # . ./deploy-web.sh
 
 LOCAL_FOLDER="dist/"
-BUCKET_NAME="GET_FROM_INFRA(when infra is written)"
-CLOUDFRONT_DISTRIBUTION_ID="GET_FROM_INFRA(when infra is written)"g
+BUCKET_NAME="nqdi-noodle-test"
+CLOUDFRONT_DISTRIBUTION_ID="EXAZZB4TDDO"
 
 # Build the web bundle
 nx export nqdi --platform web

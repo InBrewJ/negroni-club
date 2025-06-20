@@ -1,4 +1,5 @@
 import { Stack } from 'expo-router';
+import { Auth0Provider } from 'react-native-auth0';
 
 // https://docs.expo.dev/tutorial/add-navigation/
 
@@ -11,9 +12,14 @@ import { Stack } from 'expo-router';
 
 export default function RootLayout() {
   return (
+    // <Auth0Provider
+    //   domain={'dev-zk85cs9r.us.auth0.com'}
+    //   clientId={'VCiPUZv4qTWchM9HUY5XuZDi5wYNqvf8'}
+    // >
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="+not-found" />
     </Stack>
+    // </Auth0Provider>
   );
 }

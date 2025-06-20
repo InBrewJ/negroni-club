@@ -23,7 +23,7 @@
     "metro-resolver": "*",
     "node-fetch": "*",
     "picocolors": "*",
-    "react": "19.0.0",
+    "react": "*",
     "react-native": "*",
     "react-native-svg": "15.11.2",
     "react-native-svg-transformer": "*",

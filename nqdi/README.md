@@ -9,7 +9,8 @@ After much wrangling, find it here: https://negroni.club
 
 ## Tools
 
-- AWS
+- AWS / Digital Ocean
+- probably Cloudflare for DNS and other security / DDoS bits
 - CockroachDB
 - Go
 - TypeScript
@@ -87,10 +88,14 @@ nx export nqdi
 Install new packages (e.g. TanStack form / something expo focussed) like:
 
 - go to the root level
+- look here: https://nx.dev/technologies/react/expo/introduction#install-compatible-npm-packages
 
 ```sh
-npm i @tanstack/react-form
-npm i install expo-location
+# This is done for all apps?
+nx install nqdi --packages=@tanstack/react-form
+nx install nqdi --packages=expo-location
+# Does expo install work?
+nx install nqdi --packages=react-native-auth0 # the command works fine, dependency stuff may not!
 ```
 
 ## Deploy
