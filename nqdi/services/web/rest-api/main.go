@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
 
@@ -12,6 +11,9 @@ import (
 	"rest-api/secrets"
 
 	"github.com/gin-contrib/cors"
+
+	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
+	"github.com/auth0/go-jwt-middleware/v2/validator"
 )
 
 // env var candidates
@@ -31,10 +33,12 @@ func Smoke() string {
 func GetIngressPort() string {
 	// https://gobyexample.com/environment-variables
 
-	if os.Getenv("LOCAL_DEV") == "TRUE" {
+	if secrets.GetSecretFromEnvFile("LOCAL_DEV") == "TRUE" {
+		fmt.Println("LOCAL_DEV == TRUE")
 		return secrets.GetSecretFromEnvFile("INGRESS_PORT_LOCAL")
 	}
 
+	fmt.Println("PROBABLY IN PROD")
 	return secrets.GetSecretFromEnvFile("INGRESS_PORT_PROD")
 }
 
@@ -74,7 +78,17 @@ func main() {
 		})
 	})
 
-	r.POST("/nqdi", func(c *gin.Context) {
+	r.POST("/nqdi", checkJWT(), func(c *gin.Context) {
+		// unDRY boilerplate, sort it out ya
+		_, ok := c.Request.Context().Value(jwtmiddleware.ContextKey{}).(*validator.ValidatedClaims)
+		if !ok {
+			c.AbortWithStatusJSON(
+				http.StatusInternalServerError,
+				map[string]string{"message": "Failed to get validated JWT claims."},
+			)
+			return
+		}
+
 		var newNqdi adapters.NegroniQualityDiscoveryIndex
 
 		if err := c.BindJSON(&newNqdi); err != nil {
@@ -86,37 +100,40 @@ func main() {
 		}
 
 		// validation, is there something built in to Gin?
+		// note the uint problem - if -1 appears in the form is it
+		// mapped back to 0?
+		//
 		// Or something like Zod in JS land?
 
-		if newNqdi.Accessories > 10 && newNqdi.Accessories < 0 {
+		if newNqdi.Accessories > 10 || newNqdi.Accessories < 0 {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": "Accessories should be between 0 and 10",
 			})
 			return
 		}
 
-		if newNqdi.Bite > 10 && newNqdi.Bite < 0 {
+		if newNqdi.Bite > 10 || newNqdi.Bite < 0 {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": "Bite should be between 0 and 10",
 			})
 			return
 		}
 
-		if newNqdi.Sweetness > 10 && newNqdi.Sweetness < 0 {
+		if newNqdi.Sweetness > 10 || newNqdi.Sweetness < 0 {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": "Sweetness should be between 0 and 10",
 			})
 			return
 		}
 
-		if newNqdi.Mouthfeel > 10 && newNqdi.Mouthfeel < 0 {
+		if newNqdi.Mouthfeel > 10 || newNqdi.Mouthfeel < 0 {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": "Mouthfeel should be between 0 and 10",
 			})
 			return
 		}
 
-		fmt.Sprintf("New Negroni = %s", newNqdi)
+		_ = fmt.Sprintf("New Negroni = %s", newNqdi)
 
 		// loose validation end, is there something built in to Gin?
 
@@ -131,6 +148,22 @@ func main() {
 		}
 
 		c.IndentedJSON(http.StatusCreated, createResult)
+	})
+
+	r.GET("/secure", checkJWT(), func(ctx *gin.Context) {
+		claims, ok := ctx.Request.Context().Value(jwtmiddleware.ContextKey{}).(*validator.ValidatedClaims)
+		if !ok {
+			ctx.AbortWithStatusJSON(
+				http.StatusInternalServerError,
+				map[string]string{"message": "Failed to get validated JWT claims."},
+			)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{
+			"secrets": "abound, within and here",
+			"claims":  claims,
+		})
 	})
 
 	r.Run(":" + GetIngressPort())

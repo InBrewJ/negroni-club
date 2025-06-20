@@ -15,6 +15,7 @@ export const ContributeScreen = () => {
 
   const sendNewContribution = async (value: NewNegroni) => {
     // surely there's a better way than this?
+    // This is a classic marshalling sort of sitch
     const sanitised: NewNegroni = {
       Lat: String(value.Lat),
       Long: String(value.Long),
@@ -39,7 +40,7 @@ export const ContributeScreen = () => {
 
   const form = useForm({
     // This shouldn't have to map directly to
-    // exact row names
+    // exact row names, surely?
     defaultValues: {
       Lat: '0',
       Long: '0',

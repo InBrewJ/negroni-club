@@ -149,3 +149,26 @@ Also Grafana cloud, jeese: https://grafana.com/pricing/?src=k6io
 - Integrate Auth0 for the 'Add' button on the app + ask for location on add screen, get the map working again
 - Write a GitHub action for some semblance of TypeScript and Go tests, maybe Terraform tests (maybe)
 - Try and get the Android build working (I guess it has to work locally before it works on EAS)
+
+# 2025-06-18 14:55
+
+- As above, focus on:
+  - Fix up Expo dependencies, get the build server working... fume (done)
+  - Linking up Auth0: only registered users should be able to 'Contribute' a Negroni (duh)
+  - Get the web map working again
+  - Get a GitHub actions pipeline up and running (push to main, deploy to DO)
+  - Via Terraform / Pulimi, Deploy a tiny, tiny droplet for Grafana Cloud purposes (to act as a metric sink)
+  - Have a play around with Grafana Cloud, the v generous free tier
+  - Writing some Terraform (or, dare I say, Pulumi?) for the DO App Platform (maybe for dev.negroni.club)
+    - And cockroach DB!
+  - It would be SO nice to have the Android version building and pushing to the Play Store...
+
+# 2025-06-20
+
+- Auth0 notes
+  - Needs a client application AND an API application? Client asks for token with access to API?
+  - Blogs and Docs:
+    - https://dev.to/ksivamuthu/auth0-jwt-middleware-in-go-gin-web-framework-37mj
+    - https://github.com/auth0/go-jwt-middleware/blob/master/examples/gin-example/main.go
+
+We'll start with the API side first (secure everything apart from GET /ping and GET /recent) and then link up react-native later...
