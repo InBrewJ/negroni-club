@@ -95,7 +95,9 @@ Install new packages (e.g. TanStack form / something expo focussed) like:
 nx install nqdi --packages=@tanstack/react-form
 nx install nqdi --packages=expo-location
 # Does expo install work?
+# https://github.com/auth0/react-native-auth0/issues/1096#issuecomment-2708942599
 nx install nqdi --packages=react-native-auth0 # the command works fine, dependency stuff may not!
+nx install nqdi --packages=react-native-auth0 --force # force if there's a documented + known acceptance of force
 ```
 
 ## Deploy
@@ -121,3 +123,30 @@ npx nx destroy rest-api-infra
 Last failure here:
 
 https://expo.dev/accounts/inbrewj/projects/nqdi/builds/f0f69b13-312c-4fc4-bba7-2c754b60e322
+
+## Fixing mental Expo version upgrade problems
+
+- see here for a reddit thread about the upgrade from 52 -> 53
+  - https://www.reddit.com/r/expo/comments/1kfagmj/upgraded_to_sdk_53_turned_out_to_be_a_nightmare/
+
+In general, these commands might help:
+
+```sh
+# At the root of the project
+rm -rf node_modules package-lock.json apps/nqdi/node_modules apps/nqdi/package-lock.json
+npm install
+npx expo-doctor@latest
+npx expo install --check
+npx expo install --fix
+
+# Then, start the dev server with a cache clear
+npx expo start --clear
+# then, w to start the web version?
+
+# And remember to install 3rd party things like:
+# (this is taken from the @nx/expo docs here: https://nx.dev/technologies/react/expo/introduction#install-compatible-npm-packages)
+nx install <app-name>
+nx install nqdi --packages=@tanstack/react-form,@other-stuff/package
+
+
+```

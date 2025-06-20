@@ -29,9 +29,13 @@
     "react-native-svg-transformer": "*",
     "react-native-web": "*",
     "tsconfig-paths": "*",
-    "tslib": "*"
+    "tslib": "*",
+    "@tanstack/react-form": "*",
+    "expo-location": "*",
+    "react-native-auth0": "*"
   },
   "scripts": {
     "eas-build-post-install": "cd ../../ && node tools/scripts/eas-build-post-install.mjs . apps/nqdi"
-  }
+  },
+  "devDependencies": {}
 }
