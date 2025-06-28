@@ -1,12 +1,12 @@
 import { Button } from 'react-native';
-import { useAuth0 } from 'react-native-auth0';
+import { useAuth } from '../auth/auth0/useAuth';
 
 export const LogoutButton = () => {
-    const {clearSession} = useAuth0();
+    const {logout} = useAuth();
 
     const onPress = async () => {
         try {
-            await clearSession();
+            await logout();
         } catch (e) {
             console.log(e);
         }

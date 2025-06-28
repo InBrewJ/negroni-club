@@ -32,7 +32,19 @@ https://dev.to/ksivamuthu/auth0-jwt-middleware-in-go-gin-web-framework-37mj
 ## Install
 
 ```sh
+# optionally, if things are weird
+npm cache clean --force
+#
 npm install
+# or
+npm install --verbose
+```
+
+## Raze and Repeat Instal
+
+```sh
+# from project root
+rm -rf nqdi/.nx/cache nqdi/.nx/workspace-data node_modules package-lock.json && npm cache clean --force && npm install --verbose
 ```
 
 ## Run

@@ -48,7 +48,7 @@ func main() {
 	// into the core?
 	core.InitStore()
 
-	// gin init (through driving port?)
+	// gin init (through driving port? Or configurator?)
 	r := gin.Default()
 
 	// https://github.com/gin-contrib/cors?tab=readme-ov-file#using-defaultconfig-as-start-point
@@ -99,34 +99,34 @@ func main() {
 			return
 		}
 
-		// validation, is there something built in to Gin?
+		// validation, is there something built in to Gin or GORM?
 		// note the uint problem - if -1 appears in the form is it
 		// mapped back to 0?
 		//
 		// Or something like Zod in JS land?
 
-		if newNqdi.Accessories > 10 || newNqdi.Accessories < 0 {
+		if newNqdi.Accessories > 10 || newNqdi.Accessories < 1 {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": "Accessories should be between 0 and 10",
 			})
 			return
 		}
 
-		if newNqdi.Bite > 10 || newNqdi.Bite < 0 {
+		if newNqdi.Bite > 10 || newNqdi.Bite < 1 {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": "Bite should be between 0 and 10",
 			})
 			return
 		}
 
-		if newNqdi.Sweetness > 10 || newNqdi.Sweetness < 0 {
+		if newNqdi.Sweetness > 10 || newNqdi.Sweetness < 1 {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": "Sweetness should be between 0 and 10",
 			})
 			return
 		}
 
-		if newNqdi.Mouthfeel > 10 || newNqdi.Mouthfeel < 0 {
+		if newNqdi.Mouthfeel > 10 || newNqdi.Mouthfeel < 1 {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": "Mouthfeel should be between 0 and 10",
 			})
@@ -135,7 +135,7 @@ func main() {
 
 		_ = fmt.Sprintf("New Negroni = %s", newNqdi)
 
-		// loose validation end, is there something built in to Gin?
+		// loose validation end, is there something built in to Gin or GORM?
 
 		var createResult, err = core.CreateNewNqdi(newNqdi)
 

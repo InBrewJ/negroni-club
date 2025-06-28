@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, ActivityIndicator } from 'react-native';
+import { Text, View, StyleSheet, ActivityIndicator, Button } from 'react-native';
 import * as Location from 'expo-location';
 import { Stack } from 'expo-router'; // Optional: For setting screen options like title
 
@@ -22,8 +22,7 @@ export default function LocationFinder() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(true); // To show loading indicator
 
-  useEffect(() => {
-    // Define the async function inside useEffect
+  // Define the async function inside useEffect
     const getLocationAsync = async () => {
       setLoading(true); // Start loading
       setErrorMsg(null); // Reset errors
@@ -77,6 +76,8 @@ export default function LocationFinder() {
       }
     };
 
+  useEffect(() => {
+  
     // Call the async function when the component mounts
     getLocationAsync();
   }, []); // Empty dependency array means this runs once on mount
@@ -113,16 +114,14 @@ export default function LocationFinder() {
       )}
 
       {/* Optional: Button to retry if needed */}
-      {/* {!loading && (
+      {!loading && (
         <Button
           title="Retry Location"
           onPress={() =>
-            useEffect(() => {
-              getLocationAsync();
-            }, [])
+            getLocationAsync()
           }
         />
-      )} */}
+      )}
     </View>
   );
 }

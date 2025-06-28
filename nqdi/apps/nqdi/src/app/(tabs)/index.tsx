@@ -249,12 +249,12 @@ export const App = () => {
                 <Text>The search continues</Text>
               </View>
             )}
-            {recentNegroniExists && isMobile === true && (
+            {recentNegroniExists && isMobile && (
               <View style={styles.section}>
                 <Text>Cool mobile map coming soon...</Text>
               </View>
             )}
-            {recentNegroniExists && isWeb === true && (
+            {recentNegroniExists && isWeb && (
               // @ts-ignore
               <MapView
                 id={'same-map-id-1234'}

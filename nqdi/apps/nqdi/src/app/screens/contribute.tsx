@@ -5,6 +5,7 @@ import { useForm } from '@tanstack/react-form';
 import { Negroni } from '../(tabs)';
 import { API_URL } from '../backend/rest';
 import { LoginButton } from '../components/LoginButton';
+import { Auth0Provider } from '../auth/auth0/Auth0Provider';
 
 export type NewNegroni = Omit<Negroni, 'UpdatedAt' | 'Location'> & {
   Lat: string;
@@ -58,6 +59,7 @@ export const ContributeScreen = () => {
   });
 
   return (
+    <Auth0Provider>
     <View style={styles.container}>
       {/* Optional: Set the title for this screen */}
       <Stack.Screen options={{ title: 'Contribute a Negroni' }} />
@@ -128,6 +130,7 @@ export const ContributeScreen = () => {
       {/* Your map component and other UI will eventually go here */}
       <LoginButton />
     </View>
+    </Auth0Provider>
   );
 };
 

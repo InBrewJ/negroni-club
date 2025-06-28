@@ -2,18 +2,18 @@ FROM golang:1.24.3
 
 WORKDIR /app
 
-COPY go.mod go.sum ./
+COPY go.mod go.sum /app
 RUN go mod download
 
 
-COPY adapters ./adapters
-COPY core ./core
-COPY secrets ./secrets
-COPY *.go ./
+COPY adapters /app/adapters
+COPY core /app/core
+COPY secrets /app/secrets
+COPY *.go /app
 
 RUN ls -lRt /app
 
-RUN GOPATH=/app CGO_ENABLED=0 GOOS=linux go build -o /rest-api
+RUN CGO_ENABLED=0 GOOS=linux go build -o /rest-api
 
 EXPOSE 80
 

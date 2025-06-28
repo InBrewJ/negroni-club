@@ -1,13 +1,13 @@
 import { Button } from 'react-native';
-import { useAuth0 } from 'react-native-auth0';
+import { useAuth } from '../auth/auth0/useAuth';
 
 export const LoginButton = () => {
-  const { authorize } = useAuth0();
+  const { login } = useAuth();
 
   const onLogin = async () => {
     try {
       // This single function works on web, iOS, and Android
-      await authorize({
+      await login({
         // CRITICAL: Request the audience for your Go API
         audience: 'https://gin.negroni.club',
       });
