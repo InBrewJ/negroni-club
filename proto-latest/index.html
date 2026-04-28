@@ -10,20 +10,54 @@
 <link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
-<meta name="theme-color" content="#B83A2E">
+<meta name="theme-color" id="metaThemeColor" content="#15110C">
+<script>
+  // Pre-paint theme application — avoids a flash of the wrong theme.
+  (function () {
+    try {
+      var stored = localStorage.getItem("negroni.theme");
+      document.documentElement.dataset.theme = stored || "dark";
+    } catch (e) { document.documentElement.dataset.theme = "dark"; }
+  })();
+</script>
 <style>
   :root{
+    /* Light theme (the print edition) */
     --paper:#F2ECDF;
     --paper-2:#EEE6D6;
     --ink:#1B1611;
     --ink-2:#6B6258;
+    --ink-3:#403930;          /* slightly lifted body text on paper */
     --rule:#D8CFBE;
     --red:#B83A2E;
     --red-deep:#8B2A20;
+    --red-bg:#F8E7E2;         /* tint behind .tag and published chips */
     --pink:#E8D2C9;
     --gold:#B89B6A;
     --olive:#7D7A5E;
-    --black:#1B1611;
+    --inverse-muted:#bdb4a4;  /* muted text on dark/inverted cards */
+    --shadow:0 6px 22px rgba(27,22,17,.06);
+    --shadow-strong:0 -10px 30px rgba(27,22,17,.18);
+    --map-skin:light_all;
+  }
+  [data-theme="dark"]{
+    /* Night edition — warm dark, not pure black */
+    --paper:#15110C;
+    --paper-2:#1F1812;
+    --ink:#EFE7D6;
+    --ink-2:#8E8473;
+    --ink-3:#C9C0AD;
+    --rule:#2E2620;
+    --red:#D85541;            /* slightly lifted for dark contrast */
+    --red-deep:#B83A2E;
+    --red-bg:#3A1A14;
+    --pink:#4A2A24;
+    --gold:#C7A776;
+    --olive:#9A9776;
+    --inverse-muted:#5A5040;
+    --shadow:0 6px 22px rgba(0,0,0,.45);
+    --shadow-strong:0 -10px 30px rgba(0,0,0,.55);
+    --map-skin:dark_all;
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0;background:var(--paper);color:var(--ink)}
@@ -62,6 +96,11 @@
   }
   .mark .glass{color:var(--red)}
   .nav .glass{color:inherit}
+  .theme-icon{
+    width:14px;height:14px;display:block;color:inherit;pointer-events:none;
+    transition:transform .25s ease;
+  }
+  #themeToggle:hover .theme-icon{transform:rotate(15deg)}
   .glass.lg{width:34px;height:30px}
   .mark .word{font-style:italic;font-size:18px;color:var(--ink)}
   .topbar .meta{color:var(--ink-2)}
@@ -90,8 +129,8 @@
   .card:active{transform:scale(.985)}
   .card .label{opacity:.78}
   .card .title{font-size:24px;font-style:italic;line-height:1}
-  .card.nearby{background:var(--black);color:var(--paper)}
-  .card.nearby .label{color:#bdb4a4}
+  .card.nearby{background:var(--ink);color:var(--paper)}
+  .card.nearby .label{color:var(--inverse-muted)}
   .card.rate{background:var(--red);color:var(--paper);}
   .card.rate .label{color:#f0d8d2}
   .card.rate .plus{font-family:Inter,sans-serif;font-weight:300;font-size:32px;line-height:1;margin-bottom:8px}
@@ -178,11 +217,11 @@
   .row .body{flex:1;min-width:0}
   .row .name{font-size:22px;line-height:1.1;margin:0}
   .row .where{color:var(--ink-2);font-family:Inter,sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase}
-  .row .quote{font-style:italic;color:var(--ink);margin-top:6px;font-size:15px;color:#403930}
+  .row .quote{font-style:italic;color:var(--ink);margin-top:6px;font-size:15px;color:var(--ink-3)}
   .row .tags{display:flex;gap:6px;margin-top:8px}
   .tag{
     font-family:Inter,sans-serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;
-    border:1px solid var(--red);color:var(--red);padding:3px 10px;border-radius:999px;background:#F8E7E2;
+    border:1px solid var(--red);color:var(--red);padding:3px 10px;border-radius:999px;background:var(--red-bg);
   }
   .tag.dark{background:transparent;border-color:var(--rule);color:var(--ink-2)}
   .row .score{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:54px}
@@ -211,7 +250,7 @@
   .pill .t{font-size:20px;font-style:italic;display:block}
   .pill .s{font-family:Inter,sans-serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2)}
   .pill.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-  .pill.on .s{color:#bdb4a4}
+  .pill.on .s{color:var(--inverse-muted)}
   .pill.on.red{background:var(--red);border-color:var(--red);color:var(--paper)}
   .vessel-row{display:flex;gap:8px;flex-wrap:wrap}
   .vessel{
@@ -394,7 +433,7 @@
     padding:5px 12px;border-radius:999px;cursor:pointer;
   }
   .pub-chip:hover{border-color:var(--ink);color:var(--ink)}
-  .pub-chip.published{border-color:var(--red);color:var(--red);background:#F8E7E2}
+  .pub-chip.published{border-color:var(--red);color:var(--red);background:var(--red-bg)}
   .pub-chip.published:hover{background:transparent}
   .pub-chip[disabled]{cursor:not-allowed;opacity:.5}
   .row-del{
@@ -459,7 +498,7 @@
     font-family:"Cormorant Garamond",serif;font-style:italic;font-size:14px;
   }
   .cluster-review .cr-note{
-    grid-column:1;color:#403930;font-style:italic;font-size:14px;line-height:1.45;
+    grid-column:1;color:var(--ink-3);font-style:italic;font-size:14px;line-height:1.45;
   }
   .cluster-review .cr-score{
     grid-column:2;grid-row:1 / span 2;align-self:center;
@@ -542,7 +581,7 @@
   .detail-section .label{color:var(--ink-2);display:block;margin-bottom:8px}
   .detail-quote{
     font-family:"Cormorant Garamond",serif;font-style:italic;font-size:18px;line-height:1.45;
-    color:#403930;margin:0;
+    color:var(--ink-3);margin:0;
   }
   .detail-attrib{
     font-family:Inter,sans-serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;
@@ -606,6 +645,25 @@
             fill="none" stroke="currentColor" stroke-width="0.6"
             stroke-opacity=".22" stroke-linecap="round"/>
     </symbol>
+
+    <!-- Theme toggle glyphs — half-stroke, half-fill style to keep the editorial weight -->
+    <symbol id="moon" viewBox="0 0 16 16" overflow="visible">
+      <path d="M11 1.6 A 6.4 6.4 0 1 0 14.2 11 A 5.2 5.2 0 0 1 11 1.6 Z"
+            fill="currentColor" stroke="currentColor" stroke-width="0.8" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="sun" viewBox="0 0 16 16" overflow="visible">
+      <circle cx="8" cy="8" r="3" fill="currentColor"/>
+      <g stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
+        <path d="M8 1 V3"/>
+        <path d="M8 13 V15"/>
+        <path d="M1 8 H3"/>
+        <path d="M13 8 H15"/>
+        <path d="M3.3 3.3 L4.7 4.7"/>
+        <path d="M11.3 11.3 L12.7 12.7"/>
+        <path d="M12.7 3.3 L11.3 4.7"/>
+        <path d="M4.7 11.3 L3.3 12.7"/>
+      </g>
+    </symbol>
   </defs>
 </svg>
 
@@ -661,7 +719,7 @@
       </button>
       <button class="card browse" data-go="ledger">
         <div>
-          <div class="label" id="ledgerCount">0 entries · since 2024</div>
+          <div class="label" id="ledgerCount">0 entries · since 2026</div>
           <div class="title">Browse the ledger</div>
         </div>
         <div class="chev">⌃</div>
@@ -900,7 +958,10 @@
   <button data-go="ledger"><span class="ic">≡</span><span>Browse</span></button>
   <button class="fab" data-go="rate" aria-label="Rate">+</button>
   <button data-go="nearby"><span class="ic">⊙</span><span>Nearby</span></button>
-  <button data-go="cellar" disabled style="opacity:.4"><span class="ic">⚲</span><span>Cellar</span></button>
+  <button id="themeToggle" type="button" aria-label="Toggle theme">
+    <svg class="theme-icon" aria-hidden="true"><use id="themeIconUse" href="#sun"/></svg>
+    <span id="themeLabel">Day</span>
+  </button>
 </nav>
 
 <script src="/vendor/index.umd.min.js"></script>
@@ -1604,11 +1665,27 @@
   // ---------- Leaflet map ----------
   let clubMap = null;
   let clubMapLayers = [];
+  let clubTileLayer = null;
+  let clubLastClusters = [];
+
+  const cssVar = (name, fallback) => {
+    const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return v || fallback;
+  };
+  const tileSkin = () =>
+    document.documentElement.dataset.theme === "dark" ? "dark_all" : "light_all";
+  const tileUrlFor = (skin) =>
+    `https://{s}.basemaps.cartocdn.com/${skin}/{z}/{x}/{y}{r}.png`;
+
   const renderClubMap = (clusters, userLoc) => {
     if (!window.L) { $("#clubMap").style.display = "none"; return; }
+    clubLastClusters = clusters;
+
     if (!clubMap) {
       clubMap = L.map("clubMap", { zoomControl: true, attributionControl: true });
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+    }
+    if (!clubTileLayer) {
+      clubTileLayer = L.tileLayer(tileUrlFor(tileSkin()), {
         subdomains: "abcd",
         maxZoom: 19,
         attribution: "&copy; OSM &middot; CARTO",
@@ -1617,12 +1694,17 @@
     clubMapLayers.forEach(l => clubMap.removeLayer(l));
     clubMapLayers = [];
 
+    const red     = cssVar("--red",     "#B83A2E");
+    const redDeep = cssVar("--red-deep","#8B2A20");
+    const ink     = cssVar("--ink",     "#1B1611");
+    const paper   = cssVar("--paper",   "#F2ECDF");
+
     clusters.forEach(c => {
       const radius = Math.min(8 + c.items.length * 2, 16);
       const marker = L.circleMarker([c.lat, c.lng], {
         radius,
-        fillColor: "#B83A2E",
-        color:     "#8B2A20",
+        fillColor: red,
+        color:     redDeep,
         fillOpacity: 0.85,
         weight: 1.5,
       }).addTo(clubMap);
@@ -1636,7 +1718,7 @@
 
     if (userLoc) {
       const me = L.circleMarker([userLoc.lat, userLoc.lng], {
-        radius: 6, fillColor: "#1B1611", color: "#F2ECDF", fillOpacity: 1, weight: 2,
+        radius: 6, fillColor: ink, color: paper, fillOpacity: 1, weight: 2,
       }).addTo(clubMap);
       me.bindTooltip("you are here", { direction: "top" });
       clubMapLayers.push(me);
@@ -2145,6 +2227,37 @@
     if (added) { render(); flash("merged"); }
     renderInternals();
   });
+
+  // ---- Theme toggle ----
+  // Theme is set pre-paint by the inline script in <head>. Here we just wire
+  // the bottom-nav button so it can flip + persist + retheme the live map.
+  const THEME_BG = { dark: "#15110C", light: "#F2ECDF" };
+  const refreshThemeUI = () => {
+    const isDark = document.documentElement.dataset.theme === "dark";
+    const use = $("#themeIconUse");
+    const lbl = $("#themeLabel");
+    if (use) use.setAttribute("href", isDark ? "#sun" : "#moon");
+    if (lbl) lbl.textContent = isDark ? "Day" : "Night";
+    const meta = $("#metaThemeColor");
+    if (meta) meta.setAttribute("content", THEME_BG[isDark ? "dark" : "light"]);
+  };
+  const applyThemeToMap = () => {
+    if (!clubMap || !clubTileLayer) return;
+    clubMap.removeLayer(clubTileLayer);
+    clubTileLayer = L.tileLayer(tileUrlFor(tileSkin()), {
+      subdomains: "abcd", maxZoom: 19, attribution: "&copy; OSM &middot; CARTO",
+    }).addTo(clubMap);
+    // Re-stroke markers (fillColor/color are baked at creation time).
+    if (clubLastClusters.length || state.location) renderClubMap(clubLastClusters, state.location);
+  };
+  $("#themeToggle")?.addEventListener("click", () => {
+    const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem("negroni.theme", next); } catch {}
+    refreshThemeUI();
+    applyThemeToMap();
+  });
+  refreshThemeUI();
 
   // ---- Service worker: app shell + map tiles cached for offline use ----
   if ("serviceWorker" in navigator) {

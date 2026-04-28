@@ -12,7 +12,7 @@
 //   /club/feed                      → network-first, cache fallback
 //   everything else (auth, pod, …)  → network-only
 
-const VERSION     = "v5";
+const VERSION     = "v57b-dark-mode";
 const SHELL_CACHE = `nc-shell-${VERSION}`;
 const TILE_CACHE  = `nc-tiles-${VERSION}`;
 const FEED_CACHE  = `nc-feed-${VERSION}`;
