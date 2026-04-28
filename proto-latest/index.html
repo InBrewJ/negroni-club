@@ -1,0 +1,2184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Negroni Club — NQDI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#B83A2E">
+<style>
+  :root{
+    --paper:#F2ECDF;
+    --paper-2:#EEE6D6;
+    --ink:#1B1611;
+    --ink-2:#6B6258;
+    --rule:#D8CFBE;
+    --red:#B83A2E;
+    --red-deep:#8B2A20;
+    --pink:#E8D2C9;
+    --gold:#B89B6A;
+    --olive:#7D7A5E;
+    --black:#1B1611;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink)}
+  body{
+    font-family:"Cormorant Garamond", Georgia, serif;
+    font-size:18px;
+    line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    padding-bottom:88px;
+  }
+  .label, .meta, .nav button, .chip, .btn, .axis-name{
+    font-family:"Inter", system-ui, sans-serif;
+    font-size:10px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    font-weight:500;
+  }
+  a{color:inherit}
+
+  /* ===== App frame ===== */
+  .app{max-width:520px;margin:0 auto;padding:18px 22px 0}
+
+  /* ===== Top bar ===== */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:6px 0 14px;
+    border-bottom:1px solid var(--rule);
+  }
+  .mark{display:flex;align-items:center;gap:9px}
+  .glass{
+    width:20px;height:18px;
+    display:block;
+    flex-shrink:0;
+    pointer-events:none;
+  }
+  .mark .glass{color:var(--red)}
+  .nav .glass{color:inherit}
+  .glass.lg{width:34px;height:30px}
+  .mark .word{font-style:italic;font-size:18px;color:var(--ink)}
+  .topbar .meta{color:var(--ink-2)}
+
+  /* ===== Hero ===== */
+  .hero{padding:18px 0 8px}
+  .hero .meta{color:var(--ink-2);margin-bottom:10px}
+  .hero h1{
+    font-family:"Cormorant Garamond", serif;
+    font-weight:500;
+    font-size:64px;
+    line-height:.92;
+    letter-spacing:-.01em;
+    margin:0;
+  }
+  .hero h1 .acc{font-style:italic;color:var(--red);display:block}
+  .hero p.sub{color:var(--ink-2);max-width:34ch;margin:14px 0 0;font-size:16px}
+
+  /* ===== 3-up grid ===== */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+  .card{
+    border-radius:14px;padding:16px;min-height:118px;display:flex;flex-direction:column;justify-content:space-between;
+    cursor:pointer;transition:transform .15s ease;
+    text-align:left;border:0;font:inherit;color:inherit;
+  }
+  .card:active{transform:scale(.985)}
+  .card .label{opacity:.78}
+  .card .title{font-size:24px;font-style:italic;line-height:1}
+  .card.nearby{background:var(--black);color:var(--paper)}
+  .card.nearby .label{color:#bdb4a4}
+  .card.rate{background:var(--red);color:var(--paper);}
+  .card.rate .label{color:#f0d8d2}
+  .card.rate .plus{font-family:Inter,sans-serif;font-weight:300;font-size:32px;line-height:1;margin-bottom:8px}
+  .card.browse{background:var(--paper-2);grid-column:1 / -1;flex-direction:row;align-items:center;justify-content:space-between;min-height:64px;padding:14px 18px}
+  .card.browse .title{font-size:20px}
+  .card.browse .meta{color:var(--ink-2)}
+  .card.browse .chev{font-size:14px;color:var(--ink-2)}
+
+  /* ===== Section heading ===== */
+  .sec-head{
+    display:flex;align-items:baseline;justify-content:space-between;
+    margin:32px 0 12px;border-top:1px solid var(--rule);padding-top:14px;
+  }
+  .sec-head .label{color:var(--ink-2)}
+  .sec-head .iss{color:var(--red);font-weight:600}
+
+  /* ===== Pour of the week ===== */
+  .pour{display:flex;align-items:center;gap:14px;padding:8px 0 6px}
+  .pour .glassbox{
+    width:84px;height:96px;background:var(--gold);border-radius:8px;flex-shrink:0;position:relative;
+    background:linear-gradient(180deg,#C7A776 0%,#A88553 100%);
+  }
+  .pour .glassbox::after{
+    content:"";position:absolute;left:14px;top:14px;width:14px;height:14px;border-radius:50%;background:var(--red-deep);
+  }
+  .pour .body{flex:1;min-width:0}
+  .pour .body .name{font-size:24px;line-height:1.05;margin:0}
+  .pour .body .where{color:var(--ink-2);font-size:15px}
+  .pour .axes{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap}
+  .pour .axes span{font-family:Inter,sans-serif;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2)}
+  .pour .axes b{color:var(--ink);font-weight:600}
+  .nqdi{
+    width:54px;height:54px;border:1.4px solid var(--red);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;flex-direction:column;flex-shrink:0;color:var(--red);
+  }
+  .nqdi .n{font-size:22px;font-style:italic;line-height:1}
+  .nqdi .l{font-family:Inter,sans-serif;font-size:8px;letter-spacing:.2em;margin-top:2px}
+
+  /* ===== Bottom nav ===== */
+  .nav{
+    position:fixed;left:50%;bottom:14px;transform:translateX(-50%);
+    width:min(94%,480px);
+    background:var(--paper);
+    border:1px solid var(--rule);
+    border-radius:28px;
+    padding:10px 14px;
+    display:flex;align-items:center;justify-content:space-between;gap:6px;
+    box-shadow:0 6px 22px rgba(27,22,17,.06);
+    z-index:50;
+  }
+  .nav button{
+    background:none;border:0;padding:6px 8px;color:var(--ink-2);
+    display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;
+    font-size:9px;letter-spacing:.22em;
+  }
+  .nav button .ic{font-size:14px;font-style:normal}
+  .nav button.active{color:var(--red)}
+  .nav .fab{
+    width:44px;height:44px;border-radius:50%;background:var(--red);color:var(--paper);
+    font-size:24px;font-weight:300;font-family:Inter,sans-serif;letter-spacing:0;
+    display:flex;align-items:center;justify-content:center;border:0;cursor:pointer;
+    box-shadow:0 4px 14px rgba(184,58,46,.35);
+  }
+
+  /* ===== Ledger list ===== */
+  .ledger-head{padding:10px 0 6px}
+  .ledger-head h2{font-size:48px;line-height:.95;margin:6px 0 0;font-weight:500}
+  .ledger-head h2 em{color:var(--red)}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 8px}
+  .chip{
+    border:1px solid var(--rule);border-radius:999px;padding:6px 12px;background:transparent;color:var(--ink);cursor:pointer;
+  }
+  .chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .search{
+    width:100%;border:1px solid var(--rule);background:var(--paper-2);
+    border-radius:12px;padding:12px 14px;font:inherit;color:inherit;
+  }
+  .search:focus{outline:none;border-color:var(--ink-2)}
+  .row{
+    display:flex;gap:14px;align-items:flex-start;padding:18px 0;border-top:1px solid var(--rule);
+  }
+  .row:first-of-type{border-top:0}
+  .row .num{font-family:Inter,sans-serif;font-size:9px;letter-spacing:.2em;color:var(--ink-2);min-width:34px;padding-top:4px}
+  .row .body{flex:1;min-width:0}
+  .row .name{font-size:22px;line-height:1.1;margin:0}
+  .row .where{color:var(--ink-2);font-family:Inter,sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+  .row .quote{font-style:italic;color:var(--ink);margin-top:6px;font-size:15px;color:#403930}
+  .row .tags{display:flex;gap:6px;margin-top:8px}
+  .tag{
+    font-family:Inter,sans-serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+    border:1px solid var(--red);color:var(--red);padding:3px 10px;border-radius:999px;background:#F8E7E2;
+  }
+  .tag.dark{background:transparent;border-color:var(--rule);color:var(--ink-2)}
+  .row .score{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:54px}
+  .row .score .n{font-size:30px;font-style:italic;line-height:1;color:var(--red)}
+  .row .score .l{font-family:Inter,sans-serif;font-size:8px;letter-spacing:.22em;color:var(--red)}
+  .bars{display:flex;gap:2px;margin-top:4px}
+  .bars i{display:block;width:3px;height:14px;background:var(--red)}
+  .bars i.off{background:var(--rule)}
+
+  /* ===== Rate form ===== */
+  .form{padding:6px 0 24px}
+  .form .pre{color:var(--ink-2);margin-bottom:6px}
+  .form h2{font-size:48px;line-height:.95;margin:0 0 22px;font-weight:500}
+  .form h2 em{color:var(--red)}
+  .field{margin-bottom:18px}
+  .field .label{display:block;color:var(--ink-2);margin-bottom:8px}
+  .input{
+    width:100%;background:var(--paper-2);border:1px solid var(--rule);border-radius:10px;
+    padding:12px 14px;font:inherit;color:inherit;
+  }
+  .pill-row{display:flex;gap:8px;flex-wrap:wrap}
+  .pill{
+    border:1px solid var(--rule);border-radius:14px;padding:14px 16px;background:var(--paper-2);cursor:pointer;
+    flex:1;min-width:130px;text-align:left;color:inherit;font:inherit;
+  }
+  .pill .t{font-size:20px;font-style:italic;display:block}
+  .pill .s{font-family:Inter,sans-serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2)}
+  .pill.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .pill.on .s{color:#bdb4a4}
+  .pill.on.red{background:var(--red);border-color:var(--red);color:var(--paper)}
+  .vessel-row{display:flex;gap:8px;flex-wrap:wrap}
+  .vessel{
+    border:1px solid var(--rule);border-radius:999px;padding:9px 16px;background:transparent;cursor:pointer;
+    color:inherit;font-family:Inter,sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  }
+  .vessel.on{background:var(--red);border-color:var(--red);color:var(--paper)}
+
+  .axes-block{margin-top:8px}
+  .axis{padding:14px 0;border-top:1px solid var(--rule);display:grid;grid-template-columns:80px 1fr 30px;gap:14px;align-items:center}
+  .axis-name{color:var(--ink-2)}
+  .axis input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:24px;background:transparent;outline:none;
+    /* lock the page during a drag — without this, touch on the thumb scrolls the page */
+    touch-action:none;
+    -webkit-user-select:none;user-select:none;
+  }
+  /* fake the visible track at the vertical centre of the larger hit area */
+  .axis input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--rule)}
+  .axis input[type=range]::-moz-range-track{height:2px;background:var(--rule)}
+  .axis input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:var(--red);border:0;cursor:pointer;
+    margin-top:-8px; /* recenter against the 2px track */
+  }
+  .axis input[type=range]::-moz-range-thumb{
+    width:18px;height:18px;border-radius:50%;background:var(--red);border:0;cursor:pointer;
+  }
+  .axis .v{font-family:"Cormorant Garamond",serif;font-style:italic;text-align:right;font-size:20px;color:var(--red)}
+  .axis[data-axis=sweet] input[type=range]::-webkit-slider-thumb,
+  .axis[data-axis=sweet] input[type=range]::-moz-range-thumb{background:var(--gold)}
+  .axis[data-axis=sweet] .v{color:var(--gold)}
+  .axis[data-axis=balance] input[type=range]::-webkit-slider-thumb,
+  .axis[data-axis=balance] input[type=range]::-moz-range-thumb{background:var(--olive)}
+  .axis[data-axis=balance] .v{color:var(--olive)}
+  .axis[data-axis=complexity] input[type=range]::-webkit-slider-thumb,
+  .axis[data-axis=complexity] input[type=range]::-moz-range-thumb{background:var(--ink)}
+  .axis[data-axis=complexity] .v{color:var(--ink)}
+
+  .composite{
+    margin-top:18px;padding:18px;border-radius:14px;background:var(--red);color:var(--paper);
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .composite .l{font-family:Inter,sans-serif;font-size:10px;letter-spacing:.2em;text-transform:uppercase}
+  .composite .n{font-size:46px;font-style:italic;line-height:1}
+
+  .btn{
+    border:0;background:var(--ink);color:var(--paper);
+    padding:14px 22px;border-radius:999px;cursor:pointer;
+    letter-spacing:.18em;
+  }
+  .btn.red{background:var(--red)}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+  .actions{display:flex;gap:10px;margin-top:18px}
+
+  /* ===== Splash ===== */
+  .splash{
+    position:fixed;inset:0;background:var(--paper);z-index:200;
+    display:flex;flex-direction:column;justify-content:space-between;padding:32px 28px;
+  }
+  .splash .top .meta{color:var(--ink-2)}
+  .splash .h{
+    font-size:72px;line-height:.9;font-weight:500;margin:18px 0 0;
+  }
+  .splash .h em{color:var(--red);display:block}
+  .splash .body{max-width:30ch;color:var(--ink-2);margin-top:18px}
+  .splash .btns{display:flex;flex-direction:column;gap:10px}
+  .splash .status{font-family:Inter,sans-serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);min-height:14px}
+
+  /* ===== Empty state ===== */
+  .empty{
+    border:1px dashed var(--rule);border-radius:14px;padding:28px;text-align:center;color:var(--ink-2);margin-top:14px;
+  }
+
+  /* ===== Footer issue ribbon ===== */
+  .ribbon{
+    margin:34px 0 18px;text-align:center;color:var(--red);
+    font-family:Inter,sans-serif;font-size:10px;letter-spacing:.3em;text-transform:uppercase;
+  }
+
+  /* hide views by default */
+  .view{display:none}
+  .view.on{display:block}
+
+  /* ===== Sync modal & topbar button ===== */
+  .topbar-right{display:flex;align-items:center;gap:10px}
+  .sync-btn{
+    background:none;border:1px solid var(--rule);border-radius:50%;
+    width:30px;height:30px;color:var(--ink-2);cursor:pointer;font-size:14px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .sync-btn:hover{border-color:var(--ink-2);color:var(--ink)}
+  .sync-btn .dot{
+    position:absolute;width:6px;height:6px;border-radius:50%;background:var(--red);
+    transform:translate(10px,-9px);opacity:0;transition:opacity .25s;
+  }
+  .sync-btn.flash .dot{opacity:1}
+  .sync-btn[data-offline]{border-color:var(--ink-2);color:var(--ink-2);position:relative}
+  .sync-btn[data-offline]::after{
+    content:"";position:absolute;width:9px;height:9px;border-radius:50%;
+    background:var(--ink-2);right:-2px;top:-2px;border:2px solid var(--paper);
+  }
+  .modal-back{position:fixed;inset:0;background:rgba(27,22,17,.42);z-index:300}
+  .modal-back[hidden]{display:none}
+  .modal{position:fixed;inset:0;z-index:301;display:flex;align-items:flex-end;justify-content:center;pointer-events:none}
+  .modal[hidden]{display:none}
+  .modal-card{
+    background:var(--paper);width:100%;max-width:520px;border-radius:18px 18px 0 0;
+    padding:22px 22px 28px;box-shadow:0 -10px 30px rgba(27,22,17,.18);pointer-events:auto;
+    animation:slideup .25s ease;
+  }
+  @keyframes slideup{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+  .modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+  .modal-head h2{font-size:40px;line-height:.95;margin:4px 0 0;font-weight:500}
+  .modal-head h2 em{color:var(--red)}
+  .modal-close{background:none;border:0;font-size:26px;color:var(--ink-2);cursor:pointer;line-height:1;padding:0 4px}
+  .kv{display:grid;gap:0;margin:6px 0 8px}
+  .kv > div{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--rule);padding:10px 0}
+  .kv code{
+    font-family:Inter,system-ui,sans-serif;font-size:11px;letter-spacing:.04em;color:var(--ink);
+    max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  #syncIO{font-family:ui-monospace,Menlo,monospace;font-size:11px;line-height:1.4}
+
+  /* Auth panel inside the sync modal */
+  .auth-section{margin-bottom:8px}
+  .auth-section[hidden]{display:none}
+  .link-btn{
+    background:none;border:0;color:var(--ink-2);cursor:pointer;font:inherit;
+    font-family:Inter,sans-serif;font-size:11px;letter-spacing:.08em;text-decoration:underline;
+    padding:0;margin-top:14px;display:inline-block;
+  }
+  .link-btn:hover{color:var(--red)}
+  .devices{list-style:none;padding:0;margin:8px 0 14px}
+  .devices li{
+    display:flex;justify-content:space-between;align-items:center;padding:10px 0;
+    border-top:1px solid var(--rule);font-family:Inter,sans-serif;font-size:13px;
+  }
+  .devices li:first-child{border-top:0}
+  .devices .device-meta{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);margin-top:2px}
+  .devices .remove{
+    font-family:Inter,sans-serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+    background:none;border:0;color:var(--red);cursor:pointer;
+  }
+  .recovery-box{
+    background:var(--paper-2);border:1px dashed var(--red);border-radius:10px;
+    padding:18px 14px;text-align:center;
+  }
+  .recovery-box code{
+    font-family:ui-monospace,Menlo,monospace;font-size:18px;letter-spacing:.12em;
+    color:var(--ink);word-break:break-all;
+  }
+  details summary{
+    list-style:none;padding:8px 0;
+  }
+  details summary::-webkit-details-marker{display:none}
+  details[open] summary{color:var(--ink)}
+
+  /* Publish toggle on the rate form */
+  .publish-toggle{
+    display:flex;align-items:flex-start;gap:12px;
+    padding:14px;border:1px solid var(--rule);border-radius:12px;
+    background:var(--paper-2);cursor:pointer;margin:18px 0 6px;
+  }
+  .publish-toggle input{margin-top:4px;accent-color:var(--red);width:16px;height:16px;flex-shrink:0}
+  .publish-toggle .pt-title{font-size:17px;font-style:italic;display:block;color:var(--ink)}
+  .publish-toggle .pt-sub{
+    font-family:Inter,sans-serif;font-size:11px;letter-spacing:.04em;color:var(--ink-2);
+    display:block;margin-top:4px;line-height:1.4;
+  }
+  .publish-toggle.disabled{opacity:.55;cursor:not-allowed}
+  .publish-toggle.disabled input{pointer-events:none}
+
+  /* Publish chip / retract chip on ledger rows */
+  .row .pub-action{
+    margin-top:8px;display:flex;align-items:center;gap:10px;
+  }
+  .pub-chip{
+    font-family:Inter,sans-serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+    background:transparent;border:1px solid var(--ink-2);color:var(--ink-2);
+    padding:5px 12px;border-radius:999px;cursor:pointer;
+  }
+  .pub-chip:hover{border-color:var(--ink);color:var(--ink)}
+  .pub-chip.published{border-color:var(--red);color:var(--red);background:#F8E7E2}
+  .pub-chip.published:hover{background:transparent}
+  .pub-chip[disabled]{cursor:not-allowed;opacity:.5}
+  .row-del{
+    font-family:Inter,sans-serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+    background:none;border:0;color:var(--ink-2);cursor:pointer;padding:5px 8px;
+    margin-left:auto;
+  }
+  .row-del:hover{color:var(--red)}
+
+  /* Club row author + meta */
+  .row .author{
+    font-family:Inter,sans-serif;font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--ink-2);margin-top:6px;
+  }
+  .row .author b{color:var(--red);font-weight:600;letter-spacing:.04em;text-transform:none;font-family:"Cormorant Garamond",serif;font-style:italic;font-size:14px}
+  .club-empty{
+    border:1px dashed var(--rule);border-radius:14px;padding:28px;text-align:center;color:var(--ink-2);margin-top:14px;
+  }
+  .club-empty em{color:var(--red);font-style:italic}
+
+  /* Loading shimmer for the club feed */
+  .club-loading{color:var(--ink-2);font-family:Inter,sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;text-align:center;padding:30px 0}
+
+  /* Club map (Leaflet) */
+  #clubMap{
+    height:260px;border:1px solid var(--rule);border-radius:14px;overflow:hidden;
+    margin:14px 0 18px;background:var(--paper-2);
+  }
+  .leaflet-container{background:var(--paper-2);font-family:Inter,sans-serif}
+  .leaflet-tooltip{
+    background:var(--paper);border:1px solid var(--rule);color:var(--ink);
+    box-shadow:0 4px 12px rgba(27,22,17,.12);border-radius:6px;padding:6px 10px;
+    font-family:Inter,sans-serif;font-size:11px;line-height:1.4;
+  }
+  .leaflet-tooltip strong{
+    font-family:"Cormorant Garamond",serif;font-style:italic;font-size:14px;font-weight:500;color:var(--red);
+    display:block;margin-bottom:2px;
+  }
+  .leaflet-tooltip-top:before{border-top-color:var(--paper)}
+  .leaflet-tooltip-bottom:before{border-bottom-color:var(--paper)}
+  .leaflet-control-attribution{
+    background:var(--paper)!important;color:var(--ink-2)!important;
+    font-family:Inter,sans-serif!important;font-size:9px!important;
+  }
+  .leaflet-control-attribution a{color:var(--ink-2)!important;text-decoration:underline!important}
+
+  /* Cluster card — one per venue, with multiple member reviews stacked */
+  .cluster-reviews{
+    margin-top:10px;border-top:1px solid var(--rule);
+  }
+  .cluster-review{
+    padding:10px 0;border-bottom:1px solid var(--rule);
+    display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:start;
+  }
+  .cluster-review:last-child{border-bottom:0}
+  .cluster-review .cr-author{
+    font-family:Inter,sans-serif;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);
+    grid-column:1;
+  }
+  .cluster-review .cr-author b{
+    color:var(--red);font-weight:600;letter-spacing:.04em;text-transform:none;
+    font-family:"Cormorant Garamond",serif;font-style:italic;font-size:14px;
+  }
+  .cluster-review .cr-note{
+    grid-column:1;color:#403930;font-style:italic;font-size:14px;line-height:1.45;
+  }
+  .cluster-review .cr-score{
+    grid-column:2;grid-row:1 / span 2;align-self:center;
+    font-family:"Cormorant Garamond",serif;font-style:italic;font-size:22px;color:var(--red);line-height:1;
+    text-align:right;
+  }
+  .cluster-review .cr-score .l{font-family:Inter,sans-serif;font-size:8px;letter-spacing:.22em;color:var(--red);font-style:normal;display:block;margin-top:2px}
+  .cluster-review .cr-retract{
+    font-family:Inter,sans-serif;font-size:9px;letter-spacing:.16em;text-transform:uppercase;
+    background:none;border:0;color:var(--ink-2);cursor:pointer;text-decoration:underline;padding:0;
+  }
+  .cluster-review .cr-retract:hover{color:var(--red)}
+
+  /* Ledger framing — clearer "yours" identity */
+  .ledger-sub{
+    font-family:Inter,sans-serif;font-size:10px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--ink-2);margin-top:8px;
+  }
+  .ledger-sub .you{
+    color:var(--red);font-weight:600;letter-spacing:.02em;text-transform:none;
+    font-family:"Cormorant Garamond",serif;font-style:italic;font-size:15px;
+  }
+  .field-hint{
+    font-family:Inter,sans-serif;font-size:11px;letter-spacing:.04em;
+    color:var(--ink-2);margin-top:6px;line-height:1.4;
+  }
+  .field-hint.req{color:var(--red)}
+  .field-hint a{color:var(--ink);text-decoration:underline;cursor:pointer}
+  .field-hint .muted{color:var(--ink-2);font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:0;text-transform:none}
+
+  /* Tappable name in lists */
+  .row .name{cursor:pointer;display:inline-block}
+  .row .name:hover{color:var(--red)}
+
+  /* Detail page (echoes design system page 10) */
+  .detail-back{
+    background:none;border:0;color:var(--ink-2);cursor:pointer;
+    font-family:Inter,sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    padding:14px 0 6px;
+  }
+  .detail-back:hover{color:var(--red)}
+  .detail-hero{
+    background:var(--red);color:var(--paper);
+    padding:26px 22px 32px;border-radius:16px;margin:8px 0 18px;
+  }
+  .detail-hero .kicker{
+    font-family:Inter,sans-serif;font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+    color:#f0d8d2;margin-bottom:14px;
+  }
+  .detail-hero .hero-main{
+    display:flex;align-items:flex-start;gap:18px;
+  }
+  .detail-hero h1{
+    font-family:"Cormorant Garamond",serif;font-weight:500;
+    font-size:42px;line-height:1.04;margin:0;
+    flex:1;min-width:0;word-break:break-word;
+  }
+  .detail-hero h1 em{font-style:italic;display:block}
+  .detail-hero .meta{
+    color:#f0d8d2;font-family:Inter,sans-serif;font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin-top:14px;
+  }
+  .detail-hero .axes{
+    display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;margin-top:22px;
+    font-family:Inter,sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  }
+  .detail-hero .axes b{
+    color:var(--paper);font-weight:600;letter-spacing:.04em;text-transform:none;
+    font-family:"Cormorant Garamond",serif;font-size:18px;font-style:italic;
+    margin-left:8px;
+  }
+  .detail-hero .composite{
+    flex-shrink:0;
+    width:64px;height:64px;border:1.4px solid var(--paper);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;flex-direction:column;
+  }
+  .detail-hero .composite .n{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:26px;line-height:1}
+  .detail-hero .composite .l{font-family:Inter,sans-serif;font-size:8px;letter-spacing:.2em;margin-top:2px}
+
+  .detail-section{margin:22px 0}
+  .detail-section .label{color:var(--ink-2);display:block;margin-bottom:8px}
+  .detail-quote{
+    font-family:"Cormorant Garamond",serif;font-style:italic;font-size:18px;line-height:1.45;
+    color:#403930;margin:0;
+  }
+  .detail-attrib{
+    font-family:Inter,sans-serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--ink-2);margin-top:10px;
+  }
+  .detail-attrib b{
+    color:var(--red);font-weight:600;letter-spacing:.04em;text-transform:none;
+    font-family:"Cormorant Garamond",serif;font-style:italic;font-size:14px;
+  }
+  .detail-build{display:grid;grid-template-columns:auto 1fr;gap:10px 18px;align-items:baseline}
+  .detail-build dt{
+    font-family:Inter,sans-serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);
+    margin:0;
+  }
+  .detail-build dd{
+    margin:0;font-family:"Cormorant Garamond",serif;font-size:18px;
+    border-bottom:1px solid var(--rule);padding-bottom:10px;
+  }
+  .detail-build dt{border-bottom:1px solid var(--rule);padding-bottom:10px}
+  .detail-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+  .detail-actions .btn{font-family:Inter,sans-serif;font-size:10px}
+
+  @media (max-width:380px){
+    .hero h1{font-size:54px}
+    .form h2, .ledger-head h2{font-size:40px}
+  }
+</style>
+</head>
+<body>
+
+<!-- Reusable tumbler glyph: classic short tumbler, line-drawn, with subtle base refraction -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="tumbler" viewBox="0 0 24 22" overflow="visible">
+      <!-- back arc of rim, faint -->
+      <path d="M3.6 4.2 C 7 2.7, 17 2.7, 20.4 4.2"
+            fill="none" stroke="currentColor" stroke-width="0.9"
+            stroke-opacity=".35" stroke-linecap="round"/>
+      <!-- front arc of rim -->
+      <path d="M3.6 4.2 C 7 5.7, 17 5.7, 20.4 4.2"
+            fill="none" stroke="currentColor" stroke-width="1.1"
+            stroke-linecap="round"/>
+      <!-- left wall, very slight inward taper -->
+      <path d="M3.6 4.2 C 4.0 10, 4.4 15, 5.2 18.2"
+            fill="none" stroke="currentColor" stroke-width="1.1"
+            stroke-linecap="round"/>
+      <!-- right wall -->
+      <path d="M20.4 4.2 C 20.0 10, 19.6 15, 18.8 18.2"
+            fill="none" stroke="currentColor" stroke-width="1.1"
+            stroke-linecap="round"/>
+      <!-- rounded bottom -->
+      <path d="M5.2 18.2 Q 12 20.6, 18.8 18.2"
+            fill="none" stroke="currentColor" stroke-width="1.1"
+            stroke-linecap="round"/>
+      <!-- inner base: thick glass refraction line (subtle) -->
+      <path d="M6.0 15.6 Q 12 17.4, 18.0 15.6"
+            fill="none" stroke="currentColor" stroke-width="0.8"
+            stroke-opacity=".45" stroke-linecap="round"/>
+      <!-- tiny meniscus tick for weight -->
+      <path d="M7.4 16.2 Q 12 17.7, 16.6 16.2"
+            fill="none" stroke="currentColor" stroke-width="0.6"
+            stroke-opacity=".22" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ===== Splash / location prompt ===== -->
+<section id="splash" class="splash">
+  <div class="top">
+    <div class="mark"><svg class="glass lg" aria-hidden="true"><use href="#tumbler"/></svg><span class="word" style="font-size:22px">Negroni Club</span></div>
+    <div class="meta" style="margin-top:8px">An aperitivo, in three equal parts</div>
+    <h1 class="h">Bitter <em>kindness.</em></h1>
+    <p class="body">A quiet society for the world's best three-part drink. We rate, we record, we remember — and we tell you which one is closest.</p>
+  </div>
+  <div class="btns">
+    <div id="locStatus" class="status">Vol. IV · Issue 17 · NQDI · 4 axes · 100 pts</div>
+    <button class="btn red" id="askLoc">Find pours near me →</button>
+    <button class="btn ghost" id="skipLoc">Skip · enter manually</button>
+  </div>
+</section>
+
+<!-- ===== App ===== -->
+<main class="app" id="app" hidden>
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="mark">
+      <svg class="glass" aria-hidden="true"><use href="#tumbler"/></svg>
+      <span class="word">Negroni Club</span>
+    </div>
+    <div class="topbar-right">
+      <div class="meta" id="topMeta">APERITIVO · —</div>
+      <button class="sync-btn" id="syncOpen" aria-label="The pod"><span>⇄</span><span class="dot"></span></button>
+    </div>
+  </header>
+
+  <!-- ============ THE BAR (HOME) ============ -->
+  <section class="view on" data-view="bar">
+    <div class="hero">
+      <div class="meta" id="aperitivo">APERITIVO · SAT 19:42</div>
+      <h1>Bitter <span class="acc">kindness.</span></h1>
+      <p class="sub">Three parts, one ritual. Find one nearby, log the one in your hand, or simply browse what the club has been drinking.</p>
+    </div>
+
+    <div class="grid">
+      <button class="card nearby" data-go="nearby">
+        <div class="label">⊙ Nearby</div>
+        <div class="title">Within<br><span id="nearbyKm">— km</span></div>
+      </button>
+      <button class="card rate" data-go="rate">
+        <div class="plus">+</div>
+        <div>
+          <div class="label">NQDI · 4 axes</div>
+          <div class="title">Rate one</div>
+        </div>
+      </button>
+      <button class="card browse" data-go="ledger">
+        <div>
+          <div class="label" id="ledgerCount">0 entries · since 2024</div>
+          <div class="title">Browse the ledger</div>
+        </div>
+        <div class="chev">⌃</div>
+      </button>
+    </div>
+
+    <div class="ribbon">NQDI · 4 axes · 100 pts</div>
+  </section>
+
+  <!-- ============ LEDGER ============ -->
+  <section class="view" data-view="ledger">
+    <div class="ledger-head">
+      <div class="label" style="color:var(--ink-2)">Notes · filed by you</div>
+      <h2>Your <em>ledger.</em></h2>
+      <div id="ledgerSubtitle" class="ledger-sub"></div>
+    </div>
+    <input class="search" id="ledgerSearch" placeholder="Bar, city, bartender…">
+    <div class="filters">
+      <button class="chip on" data-f="all">All</button>
+      <button class="chip" data-f="classic">Classic</button>
+      <button class="chip" data-f="sbagliato">Sbagliato</button>
+      <button class="chip" data-f="bianco">Bianco</button>
+      <button class="chip" data-f="amaro">Amaro</button>
+    </div>
+    <div id="ledgerList"></div>
+  </section>
+
+  <!-- ============ NEARBY ============ -->
+  <section class="view" data-view="nearby">
+    <div class="ledger-head">
+      <div class="label" style="color:var(--ink-2)">Locate.</div>
+      <h2 id="locTitle">Five <em>within</em></h2>
+    </div>
+    <div class="meta" style="color:var(--ink-2);margin:6px 0 18px" id="locLine">No location set.</div>
+    <div id="clubMap" aria-label="Map of nearby filings"></div>
+    <div id="nearbyList"></div>
+  </section>
+
+  <!-- ============ RATE ============ -->
+  <section class="view" data-view="rate">
+    <form class="form" id="rateForm" onsubmit="return false">
+      <div class="pre label">Where & what</div>
+      <h2>First, the <em>setting.</em></h2>
+
+      <div class="field">
+        <label class="label">Venue</label>
+        <input class="input" id="rVenue" placeholder="e.g. Bar Basso" required>
+        <div class="field-hint" id="rGpsHint"></div>
+      </div>
+      <div class="field" id="rCityField">
+        <label class="label" id="rCityLabel">City</label>
+        <input class="input" id="rCity" placeholder="Milano, IT" autocomplete="address-level2">
+        <div class="field-hint" id="rCityHint"></div>
+      </div>
+
+      <div class="field">
+        <label class="label">Variant</label>
+        <div class="pill-row" id="variantRow">
+          <button type="button" class="pill on red" data-v="classic">
+            <span class="t">Classic</span><span class="s">Gin · Vermouth · Campari</span>
+          </button>
+          <button type="button" class="pill" data-v="sbagliato">
+            <span class="t">Sbagliato</span><span class="s">Prosecco swap</span>
+          </button>
+          <button type="button" class="pill" data-v="bianco">
+            <span class="t">Bianco</span><span class="s">Suze · Bianco</span>
+          </button>
+          <button type="button" class="pill" data-v="amaro">
+            <span class="t">Amaro</span><span class="s">Amari swap</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">Vessel</label>
+        <div class="vessel-row" id="vesselRow">
+          <button type="button" class="vessel on" data-x="rocks">Rocks</button>
+          <button type="button" class="vessel" data-x="coupe">Coupe</button>
+          <button type="button" class="vessel" data-x="tumbler">Tumbler</button>
+          <button type="button" class="vessel" data-x="wine">Wine</button>
+        </div>
+      </div>
+
+      <div class="sec-head"><span class="label">The score</span><span class="iss">NQDI · 4 axes · 100 pts</span></div>
+      <div class="axes-block" id="axes">
+        <div class="axis" data-axis="bitter">
+          <div class="axis-name">Bitter</div>
+          <input type="range" min="0" max="100" value="78">
+          <div class="v">78</div>
+        </div>
+        <div class="axis" data-axis="sweet">
+          <div class="axis-name">Sweet</div>
+          <input type="range" min="0" max="100" value="42">
+          <div class="v">42</div>
+        </div>
+        <div class="axis" data-axis="balance">
+          <div class="axis-name">Balance</div>
+          <input type="range" min="0" max="100" value="88">
+          <div class="v">88</div>
+        </div>
+        <div class="axis" data-axis="complexity">
+          <div class="axis-name">Complexity</div>
+          <input type="range" min="0" max="100" value="86">
+          <div class="v">86</div>
+        </div>
+      </div>
+
+      <div class="composite">
+        <div class="l">Composite NQDI</div>
+        <div class="n" id="compositeN">73</div>
+      </div>
+
+      <div class="field" style="margin-top:18px">
+        <label class="label">Tasting note</label>
+        <textarea class="input" id="rNote" rows="3" placeholder="Generous pour, clean ice…"></textarea>
+      </div>
+
+      <label class="publish-toggle" id="publishToggleLabel">
+        <input type="checkbox" id="rPublish">
+        <span class="pt-body">
+          <span class="pt-title">Publish to the club</span>
+          <span class="pt-sub" id="publishToggleSub">Visible to all members near this venue. Frozen at publish time — later edits stay private.</span>
+        </span>
+      </label>
+
+      <div class="actions">
+        <button class="btn red" id="saveBtn">Save to ledger →</button>
+        <button class="btn ghost" id="cancelBtn">Cancel</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- ============ DETAIL ============ -->
+  <section class="view" data-view="detail">
+    <button class="detail-back" id="detailBack" aria-label="Back">← back</button>
+    <div id="detailBody"></div>
+  </section>
+
+</main>
+
+<!-- ===== Sync / Account modal ===== -->
+<div id="syncBack" class="modal-back" hidden></div>
+<div id="syncModal" class="modal" hidden role="dialog" aria-labelledby="syncTitle">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <div class="label" style="color:var(--ink-2)">The pod</div>
+        <h2 id="syncTitle"><em>Sync.</em></h2>
+      </div>
+      <button class="modal-close" id="syncClose" aria-label="Close">×</button>
+    </div>
+
+    <!-- Anonymous -->
+    <section class="auth-section" data-auth="anon">
+      <p style="color:var(--ink-2);margin:0 0 14px;font-size:15px">
+        Browse mode — your ledger lives only on this device. Claim it with a passkey to sync across devices.
+      </p>
+      <div class="actions" style="flex-wrap:wrap;gap:8px">
+        <button class="btn red" id="btnClaim">Claim with passkey →</button>
+        <button class="btn ghost" id="btnSignIn">Sign in</button>
+      </div>
+      <button class="link-btn" id="btnRecoverShow">Lost your passkey? Recover with code →</button>
+    </section>
+
+    <!-- Authed -->
+    <section class="auth-section" data-auth="authed" hidden>
+      <div class="kv">
+        <div><span class="label">Signed in as</span><code id="syncUserHandle"></code></div>
+      </div>
+      <div class="label" style="color:var(--ink-2);margin:14px 0 6px">Your devices</div>
+      <ul id="syncDevicesList" class="devices"></ul>
+      <div class="actions" style="flex-wrap:wrap;gap:8px">
+        <button class="btn red" id="btnSyncNow">Sync now</button>
+        <button class="btn ghost" id="btnAddDevice">Add another passkey</button>
+        <button class="btn ghost" id="btnSignOut">Sign out</button>
+      </div>
+    </section>
+
+    <!-- Recovery code displayed once after registration -->
+    <section class="auth-section" data-auth="recovery-show" hidden>
+      <p style="margin:0 0 12px;font-size:15px">
+        <strong style="color:var(--red)">Save this recovery code.</strong>
+        If you lose all your passkeys, this is the only way back to your ledger. We won't show it again.
+      </p>
+      <div class="recovery-box"><code id="recoveryCodeShow"></code></div>
+      <div class="actions" style="margin-top:14px">
+        <button class="btn red" id="btnRecoveryAck">I've saved it →</button>
+        <button class="btn ghost" id="btnRecoveryCopy">Copy</button>
+      </div>
+    </section>
+
+    <!-- Recovery: entering code -->
+    <section class="auth-section" data-auth="recovery-enter" hidden>
+      <p style="color:var(--ink-2);margin:0 0 12px;font-size:15px">
+        Enter the recovery code you saved when you first claimed this ledger. We'll verify it and bind a fresh passkey to your account.
+      </p>
+      <div class="field">
+        <input class="input" id="recoveryCodeInput"
+               placeholder="XXXXX-XXXXX-XXXXX-XXXXX"
+               autocomplete="off" autocapitalize="characters" spellcheck="false"
+               style="font-family:ui-monospace,Menlo,monospace;letter-spacing:.08em">
+      </div>
+      <div class="actions">
+        <button class="btn red" id="btnRecoverGo">Recover →</button>
+        <button class="btn ghost" id="btnRecoverCancel">Cancel</button>
+      </div>
+    </section>
+
+    <hr style="border:0;border-top:1px solid var(--rule);margin:18px 0 14px">
+
+    <details>
+      <summary class="label" style="color:var(--ink-2);cursor:pointer">CRDT internals · manual merge</summary>
+      <div style="margin-top:12px">
+        <div class="kv">
+          <div><span class="label">Actor</span><code id="syncActorRaw"></code></div>
+          <div><span class="label">Ops in log</span><code id="syncOpsCount"></code></div>
+          <div><span class="label">Pours (materialized)</span><code id="syncPoursCount"></code></div>
+          <div><span class="label">Clock</span><code id="syncClock"></code></div>
+        </div>
+        <div class="actions" style="flex-wrap:wrap;margin-top:14px">
+          <button class="btn ghost" id="syncCopy">Copy ops</button>
+          <button class="btn ghost" id="syncPaste">Merge from clipboard</button>
+        </div>
+      </div>
+    </details>
+
+    <div id="syncMsg" class="status"
+         style="font-family:Inter,sans-serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);margin-top:14px;min-height:14px"></div>
+    <textarea id="syncIO" class="input" rows="5" hidden></textarea>
+  </div>
+</div>
+
+<!-- ===== Bottom nav ===== -->
+<nav class="nav" id="nav" hidden>
+  <button data-go="bar" class="active"><svg class="glass" style="width:16px;height:14px"><use href="#tumbler"/></svg><span>Bar</span></button>
+  <button data-go="ledger"><span class="ic">≡</span><span>Browse</span></button>
+  <button class="fab" data-go="rate" aria-label="Rate">+</button>
+  <button data-go="nearby"><span class="ic">⊙</span><span>Nearby</span></button>
+  <button data-go="cellar" disabled style="opacity:.4"><span class="ic">⚲</span><span>Cellar</span></button>
+</nav>
+
+<script src="/vendor/index.umd.min.js"></script>
+<script src="/vendor/leaflet/leaflet.js"></script>
+<script>
+(() => {
+  // ============================================================
+  // CRDT: G-Set of pours + per-field LWW, ordered by Hybrid Logical Clock.
+  // Op shapes:
+  //   { op:"add", id, value:{...}, hlc, actor }
+  //   { op:"set", id, field, value, hlc, actor }
+  //   { op:"del", id, hlc, actor }                  // 2P-set: tombstone wins
+  // Two replicas with disjoint op logs converge on union; the merge is
+  // commutative, associative, idempotent.
+  // ============================================================
+
+  const KEY = "negroni.crdt.v1";
+  const KEY_OLD = "negroni.club.v1";
+
+  // ---- Hybrid Logical Clock (sortable string: 15-digit ms · 6-digit counter) ----
+  const encHLC = (wall, c) => String(wall).padStart(15,"0") + "-" + String(c).padStart(6,"0");
+  const cmpHLC = (a,b) => a < b ? -1 : a > b ? 1 : 0;
+  const tick = (clk) => {
+    const now = Date.now();
+    if (now > clk.wall) { clk.wall = now; clk.counter = 0; }
+    else { clk.counter++; }
+    return encHLC(clk.wall, clk.counter);
+  };
+  const recv = (clk, hlc) => {
+    const dash = hlc.indexOf("-");
+    const rWall = +hlc.slice(0,dash), rCtr = +hlc.slice(dash+1);
+    const now = Date.now();
+    const newWall = Math.max(clk.wall, rWall, now);
+    if (newWall === clk.wall && newWall === rWall) clk.counter = Math.max(clk.counter, rCtr) + 1;
+    else if (newWall === clk.wall) clk.counter += 1;
+    else if (newWall === rWall)    clk.counter = rCtr + 1;
+    else                           clk.counter = 0;
+    clk.wall = newWall;
+  };
+
+  // ---- State (the pod blob) ----
+  // The CRDT actor is composed: `${userHandle ?? "anon"}.${deviceId}`.
+  // userHandle is the *identity* (assigned by the server, stable across devices);
+  // deviceId is the *replica* (random per browser, stable across sign-ins on this browser).
+  // Same person + two browsers = two actors → concurrent ops tiebreak deterministically.
+  const computeActor = (s) => (s.userHandle || "anon") + "." + s.deviceId;
+  const blank = () => {
+    const deviceId = "d_" + Math.random().toString(36).slice(2,10);
+    return {
+      deviceId,
+      userHandle: null,
+      actor: "anon." + deviceId,
+      clock: { wall: 0, counter: 0 },
+      ops: [],
+      // per-device, deliberately NOT in the CRDT
+      location: null,
+      onboarded: false,
+      seeded: false,
+      syncUrl: ""
+    };
+  };
+  let state = (() => {
+    try { return Object.assign(blank(), JSON.parse(localStorage.getItem(KEY)) || {}); }
+    catch { return blank(); }
+  })();
+  // older state objects may lack deviceId — backfill and recompute the actor.
+  if (!state.deviceId) state.deviceId = "d_" + Math.random().toString(36).slice(2,10);
+  state.actor = computeActor(state);
+  const persist = () => localStorage.setItem(KEY, JSON.stringify(state));
+
+  // ---- Apply an op locally and bump the clock if it came from elsewhere ----
+  const opKey = (op) => op.actor + ":" + op.hlc;
+  const knownOps = new Set(state.ops.map(opKey));
+
+  // ---- Materialize: replay ops (in HLC order) into a public `pours` array ----
+  let pours = [];
+  const materialize = () => {
+    const sorted = [...state.ops].sort((a,b) =>
+      cmpHLC(a.hlc, b.hlc) || a.actor.localeCompare(b.actor)
+    );
+    const map = {}, tomb = {};
+    for (const op of sorted) {
+      if (op.op === "del") {
+        if (cmpHLC(op.hlc, tomb[op.id] || "") > 0) tomb[op.id] = op.hlc;
+        delete map[op.id];
+      } else if (op.op === "add") {
+        if (tomb[op.id] || map[op.id]) continue;
+        const v = op.value || {};
+        const clocks = {};
+        for (const k of Object.keys(v)) clocks[k] = op.hlc;
+        map[op.id] = { id: op.id, ...v, _clocks: clocks, _addedAt: op.hlc };
+      } else if (op.op === "set") {
+        if (tomb[op.id]) continue;
+        const p = map[op.id]; if (!p) continue;
+        if (cmpHLC(op.hlc, p._clocks[op.field] || "") > 0) {
+          p[op.field] = op.value;
+          p._clocks[op.field] = op.hlc;
+        }
+      }
+    }
+    pours = Object.values(map).map(({_clocks, ...rest}) => rest);
+  };
+
+  // ---- Mutators (the only way state.ops grows from local intent) ----
+  let _pushTimer = null;
+  const schedulePush = () => {
+    if (!state.userHandle) return;
+    clearTimeout(_pushTimer);
+    _pushTimer = setTimeout(() => { syncUp().catch(()=>{}); }, 800);
+  };
+  const pushOp = (op) => {
+    state.ops.push(op);
+    knownOps.add(opKey(op));
+    persist();
+    materialize();
+    schedulePush();
+  };
+  const addPour = (value) => {
+    const id = "p_" + Math.random().toString(36).slice(2,10);
+    pushOp({ op:"add", id, value, hlc: tick(state.clock), actor: state.actor });
+    return id;
+  };
+  const setField = (id, field, value) =>
+    pushOp({ op:"set", id, field, value, hlc: tick(state.clock), actor: state.actor });
+  const delPour = (id) =>
+    pushOp({ op:"del", id, hlc: tick(state.clock), actor: state.actor });
+
+  // ---- Merge a foreign op log (the heart of the CRDT) ----
+  const mergeOps = (incoming) => {
+    let added = 0;
+    for (const op of (incoming || [])) {
+      if (knownOps.has(opKey(op))) continue;
+      state.ops.push(op);
+      knownOps.add(opKey(op));
+      recv(state.clock, op.hlc);
+      added++;
+    }
+    if (added) { persist(); materialize(); }
+    return added;
+  };
+
+  // ---- Migration from pre-CRDT format ----
+  if (state.ops.length === 0) {
+    try {
+      const old = JSON.parse(localStorage.getItem(KEY_OLD) || "null");
+      if (old?.pours?.length) {
+        for (const p of old.pours) {
+          const { id: _drop, ...val } = p;
+          state.ops.push({ op:"add", id: p.id || ("p_"+Math.random().toString(36).slice(2,10)),
+                           value: val, hlc: tick(state.clock), actor: state.actor });
+        }
+        if (old.location) state.location = old.location;
+        if (old.onboarded) state.onboarded = old.onboarded;
+        if (old.seeded)    state.seeded = old.seeded;
+        for (const op of state.ops) knownOps.add(opKey(op));
+        persist();
+      }
+    } catch {}
+  }
+
+  // ---- Seed (idempotent: fixed ids; first add wins, later devices' adds drop) ----
+  if (!state.seeded && state.ops.length === 0) {
+    const seeds = [
+      ["seed_basso",   { venue:"Bar Basso",     city:"Milano, IT",     variant:"classic",   vessel:"tumbler", bitter:88, sweet:50, balance:95, complexity:92, note:"The reference. Mirko's Negroni Sbagliato lineage shows — measured, almost mathematical.", ts:Date.now()-86400000*4,  lat:45.4842, lng:9.2128 }],
+      ["seed_soter",   { venue:"Soter & Vine",  city:"Lisbon, PT",     variant:"classic",   vessel:"rocks",   bitter:78, sweet:42, balance:88, complexity:86, note:"Generous pour, clean ice. Bartender stirred to a glassy sheen — barely diluted on first sip.", ts:Date.now()-86400000*9,  lat:38.7167, lng:-9.1393 }],
+      ["seed_dante",   { venue:"Dante",         city:"New York, US",   variant:"classic",   vessel:"rocks",   bitter:80, sweet:55, balance:80, complexity:84, note:"World's Best Bar pedigree, lives up. Five-Negroni menu — the classic still wins.", ts:Date.now()-86400000*15, lat:40.7295, lng:-73.9965 }],
+      ["seed_tides",   { venue:"House of Tides",city:"Newcastle, UK",  variant:"sbagliato", vessel:"coupe",   bitter:72, sweet:60, balance:90, complexity:82, note:"Prosecco swap done with restraint. Lighter, less brooding — afternoon Negroni.", ts:Date.now()-86400000*22, lat:54.9714, lng:-1.6028 }],
+      ["seed_rivoire", { venue:"Caffè Rivoire", city:"Firenze, IT",    variant:"classic",   vessel:"tumbler", bitter:74, sweet:62, balance:78, complexity:75, note:"Tourist-priced but the room earns it. Standard pour, sound build.", ts:Date.now()-86400000*30, lat:43.7696, lng:11.2558 }],
+    ];
+    for (const [id, value] of seeds) {
+      pushOp({ op:"add", id, value, hlc: tick(state.clock), actor: state.actor });
+    }
+    state.seeded = true;
+    persist();
+  }
+  materialize();
+
+  // ---- Cross-tab CRDT merge (free demo: two tabs are two replicas) ----
+  window.addEventListener("storage", (e) => {
+    if (e.key !== KEY || !e.newValue) return;
+    try {
+      const remote = JSON.parse(e.newValue);
+      const before = state.ops.length;
+      mergeOps(remote.ops);
+      if (state.ops.length !== before) {
+        render();
+        const active = document.querySelector(".view.on")?.dataset.view;
+        if (active === "ledger") renderLedger();
+        if (active === "nearby") renderNearby();
+      }
+    } catch {}
+  });
+
+  // ---------- Helpers ----------
+  const $ = (s, r=document) => r.querySelector(s);
+  const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+  const composite = (p) => Math.round((p.bitter*0.30 + p.balance*0.30 + p.complexity*0.25 + (100-Math.abs(p.sweet-50))*0.15));
+  const km = (a,b) => {
+    if (!a || !b) return null;
+    const R=6371, toR=x=>x*Math.PI/180;
+    const dLat=toR(b.lat-a.lat), dLng=toR(b.lng-a.lng);
+    const x = Math.sin(dLat/2)**2 + Math.cos(toR(a.lat))*Math.cos(toR(b.lat))*Math.sin(dLng/2)**2;
+    return 2*R*Math.asin(Math.sqrt(x));
+  };
+  const fmtAperitivo = () => {
+    const d = new Date();
+    const days = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
+    const hh = String(d.getHours()).padStart(2,"0");
+    const mm = String(d.getMinutes()).padStart(2,"0");
+    return `APERITIVO · ${days[d.getDay()]} ${hh}:${mm}`;
+  };
+  const niceLoc = (loc) => {
+    if (!loc) return "No location set.";
+    if (loc.label) return loc.label;
+    return `${loc.lat.toFixed(3)}° ${loc.lat>=0?"N":"S"} · ${loc.lng.toFixed(3)}° ${loc.lng>=0?"E":"W"}`;
+  };
+
+  // ---------- Splash / location ----------
+  const splash = $("#splash"), app = $("#app"), nav = $("#nav");
+  const showApp = () => {
+    splash.style.display = "none";
+    app.hidden = false;
+    nav.hidden = false;
+    render();
+  };
+
+  $("#askLoc").addEventListener("click", () => {
+    const status = $("#locStatus");
+    if (!("geolocation" in navigator)) {
+      status.textContent = "Geolocation unavailable. Skipping.";
+      state.onboarded = true; persist(); return showApp();
+    }
+    status.textContent = "Asking the wind…";
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        state.location = { lat: pos.coords.latitude, lng: pos.coords.longitude, ts: Date.now() };
+        state.onboarded = true; persist();
+        showApp();
+      },
+      (err) => {
+        status.textContent = "Location declined. You can rate manually.";
+        state.onboarded = true; persist();
+        setTimeout(showApp, 700);
+      },
+      { enableHighAccuracy:false, timeout:8000, maximumAge:600000 }
+    );
+  });
+  $("#skipLoc").addEventListener("click", () => {
+    state.onboarded = true; persist(); showApp();
+  });
+
+  // ---------- Routing ----------
+  let prevView = "bar";              // for the detail back button
+  let detailContext = null;          // { kind: "pour"|"pub", id, data }
+
+  const go = (name) => {
+    const cur = $(".view.on")?.dataset.view;
+    if (cur && cur !== name && cur !== "detail") prevView = cur;
+    $$(".view").forEach(v => v.classList.toggle("on", v.dataset.view === name));
+    $$(".nav button").forEach(b => b.classList.toggle("active", b.dataset.go === name));
+    window.scrollTo(0,0);
+    if (name === "ledger") renderLedger();
+    if (name === "nearby") renderNearby();
+    if (name === "rate")   resetRate();
+    if (name === "detail") renderDetail();
+  };
+  document.addEventListener("click", (e) => {
+    const t = e.target.closest("[data-go]");
+    if (t) { e.preventDefault(); go(t.dataset.go); }
+  });
+
+  $("#detailBack").addEventListener("click", () => go(prevView || "bar"));
+
+  // ---------- Render: top + home ----------
+  const render = () => {
+    $("#topMeta").textContent = fmtAperitivo();
+    $("#aperitivo").textContent = fmtAperitivo();
+    $("#ledgerCount").textContent = `${pours.length} entries · since 2024`;
+
+    // Nearby card now points at the public club feed.
+    if (state.location) {
+      const sample = clubItems.length ? `${clubItems.length} within ${CLUB_RADIUS_KM} km` : `within ${CLUB_RADIUS_KM} km`;
+      $("#nearbyKm").textContent = sample;
+    } else {
+      $("#nearbyKm").textContent = "set location";
+    }
+
+  };
+
+  // ---------- Ledger ----------
+  let filter = "all", q = "";
+  $("#ledgerSearch").addEventListener("input", (e) => { q = e.target.value.toLowerCase(); renderLedger(); });
+  $$(".filters .chip").forEach(c => c.addEventListener("click", () => {
+    $$(".filters .chip").forEach(x => x.classList.remove("on"));
+    c.classList.add("on"); filter = c.dataset.f; renderLedger();
+  }));
+
+  const renderLedger = () => {
+    const list = $("#ledgerList");
+    let rows = [...pours].sort((a,b) => composite(b)-composite(a));
+    if (filter !== "all") rows = rows.filter(p => p.variant === filter);
+    if (q) rows = rows.filter(p => (p.venue+" "+p.city+" "+(p.note||"")).toLowerCase().includes(q));
+
+    const sub = $("#ledgerSubtitle");
+    if (sub) {
+      const idTag = state.userHandle
+        ? `<span class="you">@${escapeHtml(state.userHandle.slice(0,10))}</span>`
+        : `anonymous · this device only`;
+      sub.innerHTML = `${pours.length} entries · ${idTag}`;
+    }
+
+    if (!rows.length) {
+      list.innerHTML = `<div class="empty">No entries match. Rate one — or clear the filter.</div>`;
+      return;
+    }
+    list.innerHTML = rows.map((p,i) => rowHtml(p,i+1)).join("");
+    $$("#ledgerList .pub-chip").forEach(b => {
+      if (b.disabled) return;
+      b.addEventListener("click", () => {
+        if (b.dataset.pub) retractFromLedger(b.dataset.pour, b.dataset.pub);
+        else               publishPour(b.dataset.pour);
+      });
+    });
+    $$("#ledgerList .row-del").forEach(b => b.addEventListener("click", () => deletePour(b.dataset.del)));
+    $$("#ledgerList [data-detail-pour]").forEach(el => el.addEventListener("click", () => {
+      detailContext = { kind: "pour", id: el.dataset.detailPour };
+      go("detail");
+    }));
+  };
+
+  // ---------- Detail page ----------
+  // Two flavours: a private pour from your ledger, or a venue cluster from the
+  // public Club. The same hero + axes, then either your edit/publish actions
+  // or the list of all members' reviews for that venue.
+  const renderDetail = () => {
+    const body = $("#detailBody");
+    if (!detailContext) { body.innerHTML = `<div class="empty">Nothing to show.</div>`; return; }
+
+    if (detailContext.kind === "pour") {
+      const p = pours.find(x => x.id === detailContext.id);
+      if (!p) { body.innerHTML = `<div class="empty">This pour was deleted.</div>`; return; }
+      body.innerHTML = detailPourHtml(p);
+      $("#detailPublish")?.addEventListener("click", () => publishPour(p.id));
+      $("#detailRetract")?.addEventListener("click", () => retractFromLedger(p.id, p.publishedPubId));
+      $("#detailDelete")?.addEventListener("click", () => deletePour(p.id));
+    } else if (detailContext.kind === "pub") {
+      const c = detailContext.cluster;
+      if (!c) { body.innerHTML = `<div class="empty">Lost the thread.</div>`; return; }
+      body.innerHTML = detailClusterHtml(c);
+      $$("#detailBody .cr-retract").forEach(b =>
+        b.addEventListener("click", () => retractPub(b.dataset.pub))
+      );
+    }
+  };
+
+  const detailPourHtml = (p) => {
+    const isPublished = !!p.publishedPubId;
+    const dateStr = new Date(p.ts || Date.now()).toISOString().slice(0, 10);
+    const hasCoords = p.lat != null && p.lng != null;
+    return `
+      <div class="detail-hero">
+        <div class="kicker">Ledger · ${escapeHtml(p.city||"—")}</div>
+        <div class="hero-main">
+          <h1>${escapeHtml(p.venue)}</h1>
+          <div class="composite"><div class="n">${composite(p)}</div><div class="l">NQDI</div></div>
+        </div>
+        <div class="meta">${escapeHtml(p.variant)} · ${escapeHtml(p.vessel)} · ${dateStr}</div>
+        <div class="axes">
+          <div>Bitter <b>${p.bitter}</b></div>
+          <div>Sweet <b>${p.sweet}</b></div>
+          <div>Balance <b>${p.balance}</b></div>
+          <div>Complexity <b>${p.complexity}</b></div>
+        </div>
+      </div>
+
+      ${p.note ? `
+        <div class="detail-section">
+          <span class="label">Tasting note</span>
+          <p class="detail-quote">"${escapeHtml(p.note)}"</p>
+          <div class="detail-attrib">filed by <b>${state.userHandle ? "@"+escapeHtml(state.userHandle.slice(0,10)) : "you"}</b> · ${dateStr}</div>
+        </div>
+      ` : ""}
+
+      <div class="detail-section">
+        <span class="label">The build</span>
+        <dl class="detail-build">
+          <dt>Variant</dt>      <dd>${escapeHtml(p.variant)}</dd>
+          <dt>Vessel</dt>       <dd>${escapeHtml(p.vessel)}</dd>
+          <dt>City</dt>         <dd>${escapeHtml(p.city || "—")}</dd>
+          ${hasCoords ? `
+          <dt>Coordinates</dt>  <dd>${p.lat.toFixed(3)}° ${p.lat>=0?"N":"S"} · ${p.lng.toFixed(3)}° ${p.lng>=0?"E":"W"}</dd>
+          ` : ""}
+        </dl>
+      </div>
+
+      <div class="detail-actions">
+        ${isPublished
+          ? `<button class="btn ghost" id="detailRetract">Retract from club</button>`
+          : `<button class="btn red" id="detailPublish" ${state.userHandle ? "" : "disabled title='Sign in to publish'"}>Publish to the club →</button>`}
+        <button class="btn ghost" id="detailDelete">Delete pour</button>
+      </div>
+    `;
+  };
+
+  const detailClusterHtml = (c) => {
+    const avg = avgComposite(c.items);
+    const dist = state.location ? km(state.location, c) : null;
+    const distStr = dist != null ? `${dist.toFixed(1)} km · ${Math.round(dist*12)} min walk` : "";
+    const sorted = c.items.slice().sort((a, b) => b.ts - a.ts);
+    const first = sorted[0];
+    return `
+      <div class="detail-hero">
+        <div class="kicker">The Club · ${escapeHtml(c.city||"—")}${distStr ? " · " + distStr : ""}</div>
+        <div class="hero-main">
+          <h1>${escapeHtml(c.venue)}</h1>
+          <div class="composite"><div class="n">${avg}</div><div class="l">NQDI · AVG</div></div>
+        </div>
+        <div class="meta">${c.items.length} filing${c.items.length===1?"":"s"} · most recent ${relativeTime(first.ts)}</div>
+      </div>
+
+      <div class="detail-section">
+        <span class="label">Filings</span>
+        ${sorted.map(it => clusterReviewHtml(it)).join("")}
+      </div>
+
+      <div class="detail-section">
+        <span class="label">Coordinates</span>
+        <dl class="detail-build">
+          <dt>Latitude</dt>  <dd>${c.lat.toFixed(4)}</dd>
+          <dt>Longitude</dt> <dd>${c.lng.toFixed(4)}</dd>
+        </dl>
+      </div>
+    `;
+  };
+
+  // ---------- Delete ----------
+  const deletePour = async (pourId) => {
+    const p = pours.find(x => x.id === pourId);
+    if (!p) return;
+    if (!confirm(`Delete "${p.venue}"?\n\nThis tombstones the entry on every device you've signed into. Can't be undone.`)) return;
+
+    // If this pour has an active publication, retract it from the club first.
+    if (p.publishedPubId) {
+      try {
+        await fetch(`/club/feed/${encodeURIComponent(p.publishedPubId)}`, {
+          method: "DELETE", credentials: "include",
+        });
+      } catch { /* best effort — local delete still proceeds */ }
+    }
+
+    delPour(pourId);   // CRDT 2P-set tombstone; propagates via /pod sync
+    renderLedger();
+    render();
+    clubLastFetch = 0; // invalidate club cache so the retract reflects on next visit
+  };
+
+  // ---------- Publish / retract ----------
+  const publishPour = async (pourId) => {
+    if (!state.userHandle) {
+      openSync();
+      return;
+    }
+    const p = pours.find(x => x.id === pourId);
+    if (!p) return;
+    try {
+      const r = await fetch("/club/publish", {
+        method: "POST",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          pourId,
+          payload: {
+            venue: p.venue, city: p.city, variant: p.variant, vessel: p.vessel,
+            bitter: p.bitter, sweet: p.sweet, balance: p.balance, complexity: p.complexity,
+            note: p.note, ts: p.ts || Date.now(),
+            lat: p.lat, lng: p.lng,
+          },
+        }),
+      });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const data = await r.json();
+      setField(pourId, "publishedPubId", data.pubId);
+      setField(pourId, "publishedAt", Date.now());
+      // If the server geocoded a city to lat/lng, persist that on the pour so
+      // the detail page and other devices have the resolved coordinates.
+      if (data.geocoded && data.lat != null && data.lng != null && (p.lat == null || p.lng == null)) {
+        setField(pourId, "lat", data.lat);
+        setField(pourId, "lng", data.lng);
+      }
+      renderLedger();
+      clubLastFetch = 0; // invalidate club cache
+    } catch (err) {
+      alert("Publish failed: " + err.message);
+    }
+  };
+
+  const retractFromLedger = async (pourId, pubId) => {
+    try {
+      const r = await fetch(`/club/feed/${encodeURIComponent(pubId)}`, {
+        method: "DELETE", credentials: "include",
+      });
+      if (!r.ok && r.status !== 404) throw new Error("HTTP " + r.status);
+    } catch (err) {
+      alert("Retract failed: " + err.message);
+      return;
+    }
+    setField(pourId, "publishedPubId", null);
+    renderLedger();
+    clubLastFetch = 0;
+  };
+
+  const retractPub = async (pubId) => {
+    try {
+      const r = await fetch(`/club/feed/${encodeURIComponent(pubId)}`, {
+        method: "DELETE", credentials: "include",
+      });
+      if (!r.ok && r.status !== 404) throw new Error("HTTP " + r.status);
+    } catch (err) {
+      alert("Retract failed: " + err.message);
+      return;
+    }
+    // also clear publishedPubId on any local pour that points to this pub
+    for (const p of pours) {
+      if (p.publishedPubId === pubId) setField(p.id, "publishedPubId", null);
+    }
+    fetchClubFeed();
+    renderLedger();
+  };
+
+  const barsFor = (n) => {
+    const lit = Math.max(0, Math.min(10, Math.round(n/10)));
+    return Array.from({length:10}, (_,i) => `<i class="${i<lit?"":"off"}"></i>`).join("");
+  };
+
+  const rowHtml = (p, i) => {
+    const isPublished = !!p.publishedPubId;
+    const canPublish  = !!state.userHandle;
+    const chip = isPublished
+      ? `<button class="pub-chip published" data-pour="${escapeHtml(p.id)}" data-pub="${escapeHtml(p.publishedPubId)}">Retract from club</button>`
+      : `<button class="pub-chip" data-pour="${escapeHtml(p.id)}" ${canPublish ? "" : "disabled"} title="${canPublish ? "" : "Sign in to publish"}">Publish to the club →</button>`;
+    return `
+    <div class="row">
+      <div class="num">No. ${String(i).padStart(2,"0")}</div>
+      <div class="body">
+        <h3 class="name" data-detail-pour="${escapeHtml(p.id)}">${escapeHtml(p.venue)}</h3>
+        <div class="where">${escapeHtml(p.city||"—")}</div>
+        ${p.note ? `<div class="quote">"${escapeHtml(p.note)}"</div>` : ""}
+        <div class="tags">
+          <span class="tag">${p.variant}</span>
+          <span class="tag dark">${p.vessel}</span>
+        </div>
+        <div class="pub-action">
+          ${chip}
+          <button class="row-del" data-del="${escapeHtml(p.id)}" aria-label="Delete this pour">delete</button>
+        </div>
+      </div>
+      <div class="score">
+        <div class="n">${composite(p)}</div>
+        <div class="l">NQDI</div>
+        <div class="bars">${barsFor(composite(p))}</div>
+      </div>
+    </div>`;
+  };
+
+  // ---------- Nearby (the Club: public, geo-scoped feed) ----------
+  let clubItems = [];
+  let clubLastFetch = 0;
+  const CLUB_RADIUS_KM = 25;
+
+  const fetchClubFeed = async () => {
+    const list = $("#nearbyList");
+    list.innerHTML = `<div class="club-loading">Loading the club…</div>`;
+    const params = new URLSearchParams({ radius: String(CLUB_RADIUS_KM), limit: "25" });
+    if (state.location) {
+      params.set("lat", String(state.location.lat));
+      params.set("lng", String(state.location.lng));
+    }
+    try {
+      const r = await fetch("/club/feed?" + params.toString(), { credentials: "include" });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const data = await r.json();
+      clubItems = data.items || [];
+      clubLastFetch = Date.now();
+    } catch (err) {
+      list.innerHTML = `<div class="club-empty">Couldn't reach the club. <br><br><button class="btn ghost" id="clubRetry">Try again</button></div>`;
+      $("#clubRetry")?.addEventListener("click", fetchClubFeed);
+      return;
+    }
+    paintClub();
+  };
+
+  // Cluster publications by proximity (≤50m). Same venue = same cluster, even
+  // across users with slightly different lat/lng or spelling.
+  const CLUSTER_THRESHOLD_KM = 0.05;
+  const clusterByLocation = (items) => {
+    const clusters = [];
+    const sorted = [...items].sort((a, b) => b.ts - a.ts);
+    for (const it of sorted) {
+      if (it.lat == null || it.lng == null) continue;
+      let c = clusters.find(c => km(c, it) < CLUSTER_THRESHOLD_KM);
+      if (!c) {
+        c = {
+          lat: it.lat, lng: it.lng,
+          venue: it.payload.venue,
+          city:  it.payload.city,
+          items: [],
+        };
+        clusters.push(c);
+      }
+      c.items.push(it);
+    }
+    return clusters;
+  };
+
+  const avgComposite = (items) =>
+    Math.round(items.reduce((s, it) => s + composite(it.payload), 0) / items.length);
+
+  const paintClub = () => {
+    $("#locLine").textContent = state.location
+      ? `${niceLoc(state.location)} · within ${CLUB_RADIUS_KM} km`
+      : "No location set — showing latest worldwide.";
+
+    const list = $("#nearbyList");
+    if (!clubItems.length) {
+      list.innerHTML = `<div class="club-empty">
+        Nothing yet ${state.location ? "near here" : "in the club"}. <br>
+        <em>Be the first to publish a pour.</em>
+      </div>`;
+      $("#clubMap").style.display = "none";
+      return;
+    }
+    $("#clubMap").style.display = "";
+
+    const clusters = clusterByLocation(clubItems);
+    if (state.location) {
+      clusters.sort((a, b) => km(state.location, a) - km(state.location, b));
+    } else {
+      clusters.sort((a, b) => b.items[0].ts - a.items[0].ts);
+    }
+
+    const N = ["One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten"];
+    const word = clusters.length <= N.length ? N[clusters.length-1] : String(clusters.length);
+    $("#locTitle").innerHTML = `${word} <em>within</em>`;
+
+    list.innerHTML = clusters.map(c => clusterCardHtml(c)).join("");
+    $$("#nearbyList .cr-retract").forEach(b => b.addEventListener("click", () => retractPub(b.dataset.pub)));
+    $$("#nearbyList [data-detail-pub]").forEach(el => el.addEventListener("click", () => {
+      const pubId = el.dataset.detailPub;
+      const cluster = clusters.find(c => c.items.some(i => i.pubId === pubId));
+      if (!cluster) return;
+      detailContext = { kind: "pub", cluster };
+      go("detail");
+    }));
+
+    // Defer map render until after layout — Leaflet needs visible dims.
+    requestAnimationFrame(() => renderClubMap(clusters, state.location));
+  };
+
+  const clusterCardHtml = (c) => {
+    const dist = state.location ? km(state.location, c) : null;
+    const distStr = dist != null ? `${dist.toFixed(1)} KM` : "—";
+    const walk = dist != null ? `${Math.round(dist*12)} min walk · ` : "";
+    const avg = avgComposite(c.items);
+    const reviews = c.items
+      .slice()
+      .sort((a, b) => b.ts - a.ts)
+      .map(it => clusterReviewHtml(it))
+      .join("");
+
+    return `
+      <div class="row cluster">
+        <div class="num">${distStr}</div>
+        <div class="body">
+          <h3 class="name" data-detail-pub="${escapeHtml(c.items[0].pubId)}">${escapeHtml(c.venue)}</h3>
+          <div class="where">${escapeHtml(c.city||"—")} · ${walk}${c.items.length} filing${c.items.length===1?"":"s"}</div>
+          <div class="cluster-reviews">${reviews}</div>
+        </div>
+        <div class="score">
+          <div class="n">${avg}</div>
+          <div class="l">${c.items.length === 1 ? "NQDI" : "NQDI · AVG"}</div>
+        </div>
+      </div>`;
+  };
+
+  const clusterReviewHtml = (it) => {
+    const p = it.payload;
+    const isMine = state.userHandle && it.userHandle === state.userHandle;
+    const author = isMine ? "you" : "@" + it.userHandle.slice(0, 8);
+    const ago = relativeTime(it.ts);
+    const retract = isMine
+      ? ` · <button class="cr-retract" data-pub="${escapeHtml(it.pubId)}">retract</button>`
+      : "";
+    return `
+      <div class="cluster-review">
+        <div class="cr-author">filed by <b>${escapeHtml(author)}</b> · ${escapeHtml(p.variant)} · ${ago}${retract}</div>
+        ${p.note ? `<div class="cr-note">"${escapeHtml(p.note)}"</div>` : ""}
+        <div class="cr-score">${composite(p)}<span class="l">NQDI</span></div>
+      </div>`;
+  };
+
+  // ---------- Leaflet map ----------
+  let clubMap = null;
+  let clubMapLayers = [];
+  const renderClubMap = (clusters, userLoc) => {
+    if (!window.L) { $("#clubMap").style.display = "none"; return; }
+    if (!clubMap) {
+      clubMap = L.map("clubMap", { zoomControl: true, attributionControl: true });
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+        subdomains: "abcd",
+        maxZoom: 19,
+        attribution: "&copy; OSM &middot; CARTO",
+      }).addTo(clubMap);
+    }
+    clubMapLayers.forEach(l => clubMap.removeLayer(l));
+    clubMapLayers = [];
+
+    clusters.forEach(c => {
+      const radius = Math.min(8 + c.items.length * 2, 16);
+      const marker = L.circleMarker([c.lat, c.lng], {
+        radius,
+        fillColor: "#B83A2E",
+        color:     "#8B2A20",
+        fillOpacity: 0.85,
+        weight: 1.5,
+      }).addTo(clubMap);
+      const avg = avgComposite(c.items);
+      marker.bindTooltip(
+        `<strong>${escapeHtml(c.venue)}</strong>${c.items.length} filing${c.items.length===1?"":"s"} · NQDI ${avg}`,
+        { direction: "top", offset: [0, -2] }
+      );
+      clubMapLayers.push(marker);
+    });
+
+    if (userLoc) {
+      const me = L.circleMarker([userLoc.lat, userLoc.lng], {
+        radius: 6, fillColor: "#1B1611", color: "#F2ECDF", fillOpacity: 1, weight: 2,
+      }).addTo(clubMap);
+      me.bindTooltip("you are here", { direction: "top" });
+      clubMapLayers.push(me);
+    }
+
+    const points = clusters.map(c => [c.lat, c.lng]);
+    if (userLoc) points.push([userLoc.lat, userLoc.lng]);
+    if (points.length === 1) {
+      clubMap.setView(points[0], 14);
+    } else if (points.length > 1) {
+      clubMap.fitBounds(L.latLngBounds(points), { padding: [30, 30], maxZoom: 15 });
+    } else {
+      clubMap.setView([20, 0], 2);
+    }
+    setTimeout(() => clubMap.invalidateSize(), 50);
+  };
+
+  const relativeTime = (ts) => {
+    const s = Math.max(1, Math.round((Date.now() - ts) / 1000));
+    if (s < 60)        return `${s}s ago`;
+    if (s < 3600)      return `${Math.floor(s/60)}m ago`;
+    if (s < 86400)     return `${Math.floor(s/3600)}h ago`;
+    if (s < 86400*30)  return `${Math.floor(s/86400)}d ago`;
+    return new Date(ts).toISOString().slice(0,10);
+  };
+
+  // Re-query the browser geolocation. We only have the value we stored at onboarding
+  // until we ask again — DevTools "sensors" location overrides change what the next
+  // call returns but don't notify the app. maximumAge: 15s keeps real devices off
+  // GPS most of the time while still picking up sensor-panel and real-world moves.
+  const refreshLocation = (cb) => {
+    if (!navigator.geolocation || !state.location) { cb && cb(false); return; }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const next = { lat: pos.coords.latitude, lng: pos.coords.longitude, ts: Date.now() };
+        const moved = !state.location || km(state.location, next) > 0.05; // 50m
+        state.location = next;
+        persist();
+        cb && cb(moved);
+      },
+      () => { cb && cb(false); },
+      { enableHighAccuracy: false, maximumAge: 15_000, timeout: 5000 }
+    );
+  };
+
+  const renderNearby = () => {
+    refreshLocation((moved) => {
+      if (moved) clubLastFetch = 0;
+      if (Date.now() - clubLastFetch < 30_000 && clubItems.length) {
+        paintClub();
+      } else {
+        fetchClubFeed();
+      }
+    });
+  };
+
+  // ---------- Rate ----------
+  // useCity: per-form override. If GPS is present we use it by default; the
+  // user can flip to manual city entry (e.g. when their fix is off).
+  const rateState = { variant:"classic", vessel:"rocks", useCity:false };
+
+  $$("#variantRow .pill").forEach(b => b.addEventListener("click", () => {
+    $$("#variantRow .pill").forEach(x => x.classList.remove("on","red"));
+    b.classList.add("on","red");
+    rateState.variant = b.dataset.v;
+  }));
+  $$("#vesselRow .vessel").forEach(b => b.addEventListener("click", () => {
+    $$("#vesselRow .vessel").forEach(x => x.classList.remove("on"));
+    b.classList.add("on");
+    rateState.vessel = b.dataset.x;
+  }));
+  const updateComposite = () => {
+    const vals = {};
+    $$("#axes .axis").forEach(a => {
+      const k = a.dataset.axis;
+      const v = +a.querySelector("input").value;
+      vals[k] = v;
+      a.querySelector(".v").textContent = v;
+    });
+    const p = { ...vals };
+    $("#compositeN").textContent = composite(p);
+  };
+  $$("#axes input").forEach(i => i.addEventListener("input", updateComposite));
+  updateComposite();
+
+  const resetRate = () => {
+    refreshLocation(() => refreshCityHint());
+  };
+
+  $("#cancelBtn").addEventListener("click", () => go("bar"));
+  // Publish toggle reflects auth state — disable + nudge if anonymous.
+  const refreshPublishToggle = () => {
+    const label = $("#publishToggleLabel");
+    const cb    = $("#rPublish");
+    const sub   = $("#publishToggleSub");
+    if (state.userHandle) {
+      label.classList.remove("disabled");
+      cb.disabled = false;
+      sub.textContent = "Visible to all members near this venue. Frozen at publish time — later edits stay private.";
+    } else {
+      label.classList.add("disabled");
+      cb.disabled = true;
+      cb.checked = false;
+      sub.innerHTML = `Sign in with a passkey to publish. <span style="text-decoration:underline">Open the pod →</span>`;
+    }
+  };
+  $("#publishToggleLabel").addEventListener("click", (e) => {
+    if (!state.userHandle) { e.preventDefault(); openSync(); }
+  });
+
+  // Three states for "where is this pour?":
+  //   A) GPS available, user accepts it → city field hidden, GPS used
+  //   B) GPS available but user overrode → city field shown + required, GPS ignored
+  //   C) no GPS at all                   → city field shown + required, GPS unavailable
+  const refreshCityHint = () => {
+    const cityField = $("#rCityField");
+    const cityHint  = $("#rCityHint");
+    const gpsHint   = $("#rGpsHint");
+    const cityLabel = $("#rCityLabel");
+    if (!cityField || !cityHint || !gpsHint || !cityLabel) return;
+
+    const haveGps     = !!state.location;
+    const usingGps    = haveGps && !rateState.useCity;
+    const usingCity   = !usingGps;
+
+    cityField.style.display = usingCity ? "" : "none";
+
+    if (usingGps) {
+      // (A) GPS only
+      gpsHint.classList.remove("req");
+      gpsHint.innerHTML = `Locating with GPS · <span class="muted">${escapeHtml(niceLoc(state.location))}</span> · <a id="rUseCity">use a city instead</a>`;
+      $("#rUseCity")?.addEventListener("click", (e) => {
+        e.preventDefault();
+        rateState.useCity = true;
+        refreshCityHint();
+        $("#rCity").focus();
+      });
+    } else if (haveGps && rateState.useCity) {
+      // (B) override
+      gpsHint.classList.remove("req");
+      gpsHint.innerHTML = `Using city — GPS is on but ignored · <a id="rUseGps">switch back to GPS</a>`;
+      $("#rUseGps")?.addEventListener("click", (e) => {
+        e.preventDefault();
+        rateState.useCity = false;
+        $("#rCity").value = "";
+        refreshCityHint();
+      });
+      cityLabel.innerHTML = `City <span style="color:var(--red)">*</span>`;
+      cityHint.classList.add("req");
+      cityHint.innerHTML = `Geocoded server-side. The city wins over the GPS fix.`;
+    } else {
+      // (C) no GPS
+      gpsHint.classList.remove("req");
+      gpsHint.innerHTML = `No GPS fix · <a id="rAskGps">try my location</a>`;
+      $("#rAskGps")?.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (!navigator.geolocation) return;
+        navigator.geolocation.getCurrentPosition((pos) => {
+          state.location = { lat: pos.coords.latitude, lng: pos.coords.longitude, ts: Date.now() };
+          persist();
+          rateState.useCity = false;
+          refreshCityHint();
+        });
+      });
+      cityLabel.innerHTML = `City <span style="color:var(--red)">*</span>`;
+      cityHint.classList.add("req");
+      cityHint.innerHTML = `Required — type a city or town. We'll geocode it.`;
+    }
+  };
+
+  $("#saveBtn").addEventListener("click", async () => {
+    const venue = $("#rVenue").value.trim();
+    if (!venue) { $("#rVenue").focus(); return; }
+
+    const haveGps   = !!state.location;
+    const usingCity = rateState.useCity || !haveGps;
+    const cityInput = $("#rCity").value.trim();
+
+    if (usingCity && !cityInput) {
+      $("#rCity").focus();
+      $("#rCityHint").classList.add("req");
+      $("#rCityHint").innerHTML = `Required. Type a city, then publish — we'll geocode it.`;
+      return;
+    }
+
+    const wantPublish = $("#rPublish").checked && !!state.userHandle;
+    const id = addPour({
+      venue,
+      city:    usingCity ? cityInput : niceLoc(state.location),
+      variant: rateState.variant,
+      vessel:  rateState.vessel,
+      bitter:  +$$("#axes .axis")[0].querySelector("input").value,
+      sweet:   +$$("#axes .axis")[1].querySelector("input").value,
+      balance: +$$("#axes .axis")[2].querySelector("input").value,
+      complexity: +$$("#axes .axis")[3].querySelector("input").value,
+      note:    $("#rNote").value.trim(),
+      ts:      Date.now(),
+      // City wins over GPS: when usingCity is true, drop lat/lng so the server
+      // geocodes from the city string. Otherwise use the live GPS fix.
+      lat: usingCity ? null : state.location.lat,
+      lng: usingCity ? null : state.location.lng,
+    });
+    $("#rVenue").value = ""; $("#rCity").value = ""; $("#rNote").value = "";
+    $("#rPublish").checked = false;
+    rateState.useCity = false;
+    refreshCityHint();
+    render();
+    go("ledger");
+    if (wantPublish) await publishPour(id);
+  });
+
+  // ---------- util ----------
+  function escapeHtml(s){ return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
+
+  // ============================================================
+  // Sync UI / WebAuthn auth
+  // ------------------------------------------------------------
+  // Three layers of sync, all funnelling through mergeOps():
+  //   1. cross-tab via the storage event (already wired above)
+  //   2. clipboard handoff (manual debug path, kept under "CRDT internals")
+  //   3. authenticated pod: HTTP GET /pod → mergeOps; PUT /pod → write blob
+  //
+  // Identity is via WebAuthn passkeys. The userHandle is the stable user id;
+  // multiple passkeys can map to the same userHandle (one per device, plus
+  // optional hardware backups). A scrypt-hashed recovery code is the fallback
+  // for "I lost all my devices."
+  // ============================================================
+
+  const wa = window.SimpleWebAuthnBrowser; // may be undefined if /vendor failed to load
+  const syncBack = $("#syncBack"), syncModal = $("#syncModal"), syncMsg = $("#syncMsg");
+  const setMsg = (m) => { syncMsg.textContent = m || ""; };
+  const flash  = (m) => {
+    setMsg(m);
+    const btn = $("#syncOpen"); btn.classList.add("flash");
+    setTimeout(() => btn.classList.remove("flash"), 1500);
+  };
+
+  const apiPost = async (url, body) => {
+    const r = await fetch(url, {
+      method: "POST",
+      credentials: "include",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body || {}),
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || `HTTP ${r.status}`);
+    return data;
+  };
+
+  const fetchMe = async () => {
+    try {
+      const r = await fetch("/me", { credentials: "include" });
+      return r.ok ? r.json() : { authed: false };
+    } catch { return { authed: false }; }
+  };
+
+  const setAuthed = (userHandle) => {
+    state.userHandle = userHandle;
+    state.actor = computeActor(state);
+    persist();
+    refreshPublishToggle();
+  };
+  const setAnon = () => {
+    state.userHandle = null;
+    state.actor = computeActor(state);
+    persist();
+    refreshPublishToggle();
+  };
+
+  // ---- WebAuthn flows ----
+  async function doClaim() {
+    if (!wa) throw new Error("WebAuthn library not loaded");
+    const start = await apiPost("/webauthn/register/start", {});
+    const att   = await wa.startRegistration({ optionsJSON: start.options });
+    const fin   = await apiPost("/webauthn/register/finish", { userHandle: start.userHandle, response: att });
+    setAuthed(fin.userHandle);
+    return fin; // { recoveryCode? }
+  }
+  async function doSignIn() {
+    if (!wa) throw new Error("WebAuthn library not loaded");
+    const start = await apiPost("/webauthn/authenticate/start", {});
+    const ass   = await wa.startAuthentication({ optionsJSON: start.options });
+    const fin   = await apiPost("/webauthn/authenticate/finish", { response: ass });
+    setAuthed(fin.userHandle);
+    return fin;
+  }
+  async function doSignOut() {
+    try { await apiPost("/logout", {}); } catch {}
+    setAnon();
+  }
+  async function doAddDevice() {
+    if (!wa) throw new Error("WebAuthn library not loaded");
+    const start = await apiPost("/webauthn/register/start", {});
+    const att   = await wa.startRegistration({ optionsJSON: start.options });
+    return apiPost("/webauthn/register/finish", { userHandle: start.userHandle, response: att });
+  }
+  async function doRecover(recoveryCode) {
+    if (!wa) throw new Error("WebAuthn library not loaded");
+    const verified = await apiPost("/recover/start", { recoveryCode });
+    const start    = await apiPost("/webauthn/register/start", {
+      recoveryUserHandle: verified.userHandle,
+      recoveryToken: verified.recoveryToken,
+    });
+    const att = await wa.startRegistration({ optionsJSON: start.options });
+    const fin = await apiPost("/webauthn/register/finish", {
+      userHandle: start.userHandle,
+      response: att,
+      recoveryToken: start.recoveryReissue,
+    });
+    setAuthed(fin.userHandle);
+    return fin;
+  }
+
+  // ---- Pod sync (authenticated) ----
+  async function syncDown() {
+    if (!state.userHandle) return 0;
+    const r = await fetch("/pod", { credentials: "include" });
+    if (!r.ok) return 0;
+    const { ops } = await r.json();
+    return mergeOps(ops);
+  }
+  async function syncUp() {
+    if (!state.userHandle) return false;
+    const r = await fetch("/pod", {
+      method: "PUT",
+      credentials: "include",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ops: state.ops }),
+    });
+    return r.ok;
+  }
+  async function fullSync() {
+    const added = await syncDown();
+    if (added) { render(); const v = $(".view.on")?.dataset.view;
+      if (v === "ledger") renderLedger(); if (v === "nearby") renderNearby();
+    }
+    await syncUp();
+    return added;
+  }
+
+  // ---- Modal state machine ----
+  const showSection = (which) => {
+    $$("#syncModal .auth-section").forEach(s => s.hidden = true);
+    const n = $(`#syncModal [data-auth="${which}"]`);
+    if (n) n.hidden = false;
+  };
+
+  const renderInternals = () => {
+    $("#syncActorRaw").textContent = state.actor;
+    $("#syncOpsCount").textContent = String(state.ops.length);
+    $("#syncPoursCount").textContent = String(pours.length);
+    $("#syncClock").textContent = encHLC(state.clock.wall, state.clock.counter);
+  };
+
+  const renderAuthState = async (override) => {
+    renderInternals();
+    if (override) { showSection(override); return; }
+
+    let me = { authed: false };
+    if (state.userHandle) {
+      me = await fetchMe();
+      if (!me.authed) setAnon();      // session lapsed → drop client claim
+    }
+
+    if (me.authed) {
+      $("#syncUserHandle").textContent = me.userHandle.slice(0, 14) + "…";
+      $("#syncDevicesList").innerHTML = me.credentials.map(c => `
+        <li>
+          <div>
+            <div>${escapeHtml(c.device_label || "browser")}</div>
+            <div class="device-meta">added ${new Date(c.created_at).toISOString().slice(0,10)}</div>
+          </div>
+          ${me.credentials.length > 1 ? `<button class="remove" data-cred="${escapeHtml(c.credential_id)}">remove</button>` : ""}
+        </li>
+      `).join("");
+      $$("#syncDevicesList .remove").forEach(b => b.addEventListener("click", async () => {
+        try {
+          const r = await fetch(`/credentials/${encodeURIComponent(b.dataset.cred)}`, {
+            method: "DELETE", credentials: "include"
+          });
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          await renderAuthState();
+        } catch (err) { setMsg("Remove failed: " + err.message); }
+      }));
+      showSection("authed");
+    } else {
+      showSection("anon");
+    }
+  };
+
+  const openSync = async () => {
+    setMsg("");
+    syncBack.hidden = false; syncModal.hidden = false;
+    await renderAuthState();
+  };
+  const closeSync = () => {
+    syncBack.hidden = true; syncModal.hidden = true;
+    $("#syncIO").hidden = true; $("#syncIO").value = "";
+  };
+
+  $("#syncOpen").addEventListener("click", openSync);
+  $("#syncClose").addEventListener("click", closeSync);
+  syncBack.addEventListener("click", closeSync);
+
+  // ---- Auth buttons ----
+  $("#btnClaim").addEventListener("click", async () => {
+    setMsg("Asking your password manager for a passkey…");
+    try {
+      const fin = await doClaim();
+      setMsg("Claimed. Pushing your ledger to the pod…");
+      await syncUp();
+      if (fin.recoveryCode) {
+        $("#recoveryCodeShow").textContent = fin.recoveryCode;
+        showSection("recovery-show");
+      } else {
+        await renderAuthState();
+      }
+      flash("ledger claimed");
+    } catch (err) { setMsg("Claim failed: " + err.message); }
+  });
+
+  $("#btnSignIn").addEventListener("click", async () => {
+    setMsg("Asking your password manager for a passkey…");
+    try {
+      await doSignIn();
+      setMsg("Signed in. Pulling your pod…");
+      const added = await fullSync();
+      await renderAuthState();
+      flash(`signed in · pulled ${added}`);
+    } catch (err) { setMsg("Sign in failed: " + err.message); }
+  });
+
+  $("#btnSignOut").addEventListener("click", async () => {
+    await doSignOut();
+    await renderAuthState();
+    setMsg("Signed out. Local ledger preserved.");
+  });
+
+  $("#btnAddDevice").addEventListener("click", async () => {
+    setMsg("Pairing this browser with another passkey…");
+    try {
+      await doAddDevice();
+      await renderAuthState();
+      flash("device added");
+    } catch (err) { setMsg("Pairing failed: " + err.message); }
+  });
+
+  $("#btnSyncNow").addEventListener("click", async () => {
+    setMsg("Syncing…");
+    try {
+      const added = await fullSync();
+      renderInternals();
+      flash(`synced · pulled ${added}, total ${state.ops.length} ops`);
+    } catch (err) { setMsg("Sync failed: " + err.message); }
+  });
+
+  // ---- Recovery flow ----
+  $("#btnRecoverShow").addEventListener("click", () => { setMsg(""); showSection("recovery-enter"); });
+  $("#btnRecoverCancel").addEventListener("click", () => { setMsg(""); renderAuthState(); });
+  $("#btnRecoverGo").addEventListener("click", async () => {
+    const code = $("#recoveryCodeInput").value.trim();
+    if (!code) { setMsg("Enter your recovery code."); return; }
+    setMsg("Verifying recovery code…");
+    try {
+      await doRecover(code);
+      setMsg("Recovered. Pulling your pod…");
+      const added = await fullSync();
+      await renderAuthState();
+      flash(`recovered · new passkey enrolled · pulled ${added}`);
+    } catch (err) { setMsg("Recovery failed: " + err.message); }
+  });
+  $("#btnRecoveryAck").addEventListener("click", async () => { setMsg(""); await renderAuthState(); });
+  $("#btnRecoveryCopy").addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText($("#recoveryCodeShow").textContent);
+      setMsg("Recovery code copied to clipboard.");
+    } catch { setMsg("Clipboard blocked. Copy it manually."); }
+  });
+
+  // ---- Manual op-blob handoff (the original CRDT demo path) ----
+  $("#syncCopy").addEventListener("click", async () => {
+    const blob = JSON.stringify({ actor: state.actor, ops: state.ops });
+    try {
+      await navigator.clipboard.writeText(blob);
+      setMsg(`Copied ${state.ops.length} ops to clipboard.`);
+    } catch {
+      const ta = $("#syncIO"); ta.hidden = false; ta.value = blob; ta.select();
+      setMsg("Clipboard blocked — copy this manually.");
+    }
+  });
+  $("#syncPaste").addEventListener("click", async () => {
+    let text = "";
+    try { text = await navigator.clipboard.readText(); } catch {}
+    if (!text) {
+      const ta = $("#syncIO"); ta.hidden = false;
+      ta.placeholder = "Paste an op blob here, then click Merge again.";
+      ta.focus();
+      if (!ta.value) { setMsg("Paste into the box, then click again."); return; }
+      text = ta.value;
+    }
+    let parsed;
+    try { parsed = JSON.parse(text); }
+    catch { setMsg("Not valid JSON."); return; }
+    const added = mergeOps(parsed.ops || parsed);
+    setMsg(`Merged ${added} new op${added===1?"":"s"} (de-duped against existing log).`);
+    if (added) { render(); flash("merged"); }
+    renderInternals();
+  });
+
+  // ---- Service worker: app shell + map tiles cached for offline use ----
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    });
+  }
+
+  // Online/offline indicator on the sync button
+  const reflectOnline = () => {
+    const btn = $("#syncOpen");
+    if (!btn) return;
+    if (navigator.onLine) btn.removeAttribute("data-offline");
+    else                  btn.setAttribute("data-offline", "1");
+  };
+  window.addEventListener("online",  () => { reflectOnline(); schedulePush(); });
+  window.addEventListener("offline", reflectOnline);
+  reflectOnline();
+
+  // ---- Boot: reconcile auth + pull pod, then render the splash/app ----
+  (async () => {
+    if (state.userHandle) {
+      // Confirm session is still valid; if so, sync down on launch.
+      const me = await fetchMe();
+      if (!me.authed) {
+        setAnon();
+      } else {
+        try { await fullSync(); } catch {}
+      }
+    }
+    refreshPublishToggle();
+    if (state.onboarded) showApp();
+  })();
+})();
+</script>
+</body>
+</html>
