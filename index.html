@@ -1,0 +1,1433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Negroni Club — NQDI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F2ECDF;
+    --paper-2:#EEE6D6;
+    --ink:#1B1611;
+    --ink-2:#6B6258;
+    --rule:#D8CFBE;
+    --red:#B83A2E;
+    --red-deep:#8B2A20;
+    --pink:#E8D2C9;
+    --gold:#B89B6A;
+    --olive:#7D7A5E;
+    --black:#1B1611;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink)}
+  body{
+    font-family:"Cormorant Garamond", Georgia, serif;
+    font-size:18px;
+    line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    padding-bottom:88px;
+  }
+  .label, .meta, .nav button, .chip, .btn, .axis-name{
+    font-family:"Inter", system-ui, sans-serif;
+    font-size:10px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    font-weight:500;
+  }
+  a{color:inherit}
+
+  /* ===== App frame ===== */
+  .app{max-width:520px;margin:0 auto;padding:18px 22px 0}
+
+  /* ===== Top bar ===== */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:6px 0 14px;
+    border-bottom:1px solid var(--rule);
+  }
+  .mark{display:flex;align-items:center;gap:9px}
+  .glass{
+    width:20px;height:18px;
+    display:block;
+    flex-shrink:0;
+    pointer-events:none;
+  }
+  .mark .glass{color:var(--red)}
+  .nav .glass{color:inherit}
+  .glass.lg{width:34px;height:30px}
+  .mark .word{font-style:italic;font-size:18px;color:var(--ink)}
+  .topbar .meta{color:var(--ink-2)}
+
+  /* ===== Hero ===== */
+  .hero{padding:18px 0 8px}
+  .hero .meta{color:var(--ink-2);margin-bottom:10px}
+  .hero h1{
+    font-family:"Cormorant Garamond", serif;
+    font-weight:500;
+    font-size:64px;
+    line-height:.92;
+    letter-spacing:-.01em;
+    margin:0;
+  }
+  .hero h1 .acc{font-style:italic;color:var(--red);display:block}
+  .hero p.sub{color:var(--ink-2);max-width:34ch;margin:14px 0 0;font-size:16px}
+
+  /* ===== 3-up grid ===== */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+  .card{
+    border-radius:14px;padding:16px;min-height:118px;display:flex;flex-direction:column;justify-content:space-between;
+    cursor:pointer;transition:transform .15s ease;
+    text-align:left;border:0;font:inherit;color:inherit;
+  }
+  .card:active{transform:scale(.985)}
+  .card .label{opacity:.78}
+  .card .title{font-size:24px;font-style:italic;line-height:1}
+  .card.nearby{background:var(--black);color:var(--paper)}
+  .card.nearby .label{color:#bdb4a4}
+  .card.rate{background:var(--red);color:var(--paper);}
+  .card.rate .label{color:#f0d8d2}
+  .card.rate .plus{font-family:Inter,sans-serif;font-weight:300;font-size:32px;line-height:1;margin-bottom:8px}
+  .card.browse{background:var(--paper-2);grid-column:1 / -1;flex-direction:row;align-items:center;justify-content:space-between;min-height:64px;padding:14px 18px}
+  .card.browse .title{font-size:20px}
+  .card.browse .meta{color:var(--ink-2)}
+  .card.browse .chev{font-size:14px;color:var(--ink-2)}
+
+  /* ===== Section heading ===== */
+  .sec-head{
+    display:flex;align-items:baseline;justify-content:space-between;
+    margin:32px 0 12px;border-top:1px solid var(--rule);padding-top:14px;
+  }
+  .sec-head .label{color:var(--ink-2)}
+  .sec-head .iss{color:var(--red);font-weight:600}
+
+  /* ===== Pour of the week ===== */
+  .pour{display:flex;align-items:center;gap:14px;padding:8px 0 6px}
+  .pour .glassbox{
+    width:84px;height:96px;background:var(--gold);border-radius:8px;flex-shrink:0;position:relative;
+    background:linear-gradient(180deg,#C7A776 0%,#A88553 100%);
+  }
+  .pour .glassbox::after{
+    content:"";position:absolute;left:14px;top:14px;width:14px;height:14px;border-radius:50%;background:var(--red-deep);
+  }
+  .pour .body{flex:1;min-width:0}
+  .pour .body .name{font-size:24px;line-height:1.05;margin:0}
+  .pour .body .where{color:var(--ink-2);font-size:15px}
+  .pour .axes{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap}
+  .pour .axes span{font-family:Inter,sans-serif;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2)}
+  .pour .axes b{color:var(--ink);font-weight:600}
+  .nqdi{
+    width:54px;height:54px;border:1.4px solid var(--red);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;flex-direction:column;flex-shrink:0;color:var(--red);
+  }
+  .nqdi .n{font-size:22px;font-style:italic;line-height:1}
+  .nqdi .l{font-family:Inter,sans-serif;font-size:8px;letter-spacing:.2em;margin-top:2px}
+
+  /* ===== Bottom nav ===== */
+  .nav{
+    position:fixed;left:50%;bottom:14px;transform:translateX(-50%);
+    width:min(94%,480px);
+    background:var(--paper);
+    border:1px solid var(--rule);
+    border-radius:28px;
+    padding:10px 14px;
+    display:flex;align-items:center;justify-content:space-between;gap:6px;
+    box-shadow:0 6px 22px rgba(27,22,17,.06);
+    z-index:50;
+  }
+  .nav button{
+    background:none;border:0;padding:6px 8px;color:var(--ink-2);
+    display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;
+    font-size:9px;letter-spacing:.22em;
+  }
+  .nav button .ic{font-size:14px;font-style:normal}
+  .nav button.active{color:var(--red)}
+  .nav .fab{
+    width:44px;height:44px;border-radius:50%;background:var(--red);color:var(--paper);
+    font-size:24px;font-weight:300;font-family:Inter,sans-serif;letter-spacing:0;
+    display:flex;align-items:center;justify-content:center;border:0;cursor:pointer;
+    box-shadow:0 4px 14px rgba(184,58,46,.35);
+  }
+
+  /* ===== Ledger list ===== */
+  .ledger-head{padding:10px 0 6px}
+  .ledger-head h2{font-size:48px;line-height:.95;margin:6px 0 0;font-weight:500}
+  .ledger-head h2 em{color:var(--red)}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 8px}
+  .chip{
+    border:1px solid var(--rule);border-radius:999px;padding:6px 12px;background:transparent;color:var(--ink);cursor:pointer;
+  }
+  .chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .search{
+    width:100%;border:1px solid var(--rule);background:var(--paper-2);
+    border-radius:12px;padding:12px 14px;font:inherit;color:inherit;
+  }
+  .search:focus{outline:none;border-color:var(--ink-2)}
+  .row{
+    display:flex;gap:14px;align-items:flex-start;padding:18px 0;border-top:1px solid var(--rule);
+  }
+  .row:first-of-type{border-top:0}
+  .row .num{font-family:Inter,sans-serif;font-size:9px;letter-spacing:.2em;color:var(--ink-2);min-width:34px;padding-top:4px}
+  .row .body{flex:1;min-width:0}
+  .row .name{font-size:22px;line-height:1.1;margin:0}
+  .row .where{color:var(--ink-2);font-family:Inter,sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+  .row .quote{font-style:italic;color:var(--ink);margin-top:6px;font-size:15px;color:#403930}
+  .row .tags{display:flex;gap:6px;margin-top:8px}
+  .tag{
+    font-family:Inter,sans-serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+    border:1px solid var(--red);color:var(--red);padding:3px 10px;border-radius:999px;background:#F8E7E2;
+  }
+  .tag.dark{background:transparent;border-color:var(--rule);color:var(--ink-2)}
+  .row .score{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:54px}
+  .row .score .n{font-size:30px;font-style:italic;line-height:1;color:var(--red)}
+  .row .score .l{font-family:Inter,sans-serif;font-size:8px;letter-spacing:.22em;color:var(--red)}
+  .bars{display:flex;gap:2px;margin-top:4px}
+  .bars i{display:block;width:3px;height:14px;background:var(--red)}
+  .bars i.off{background:var(--rule)}
+
+  /* ===== Rate form ===== */
+  .form{padding:6px 0 24px}
+  .form .pre{color:var(--ink-2);margin-bottom:6px}
+  .form h2{font-size:48px;line-height:.95;margin:0 0 22px;font-weight:500}
+  .form h2 em{color:var(--red)}
+  .field{margin-bottom:18px}
+  .field .label{display:block;color:var(--ink-2);margin-bottom:8px}
+  .input{
+    width:100%;background:var(--paper-2);border:1px solid var(--rule);border-radius:10px;
+    padding:12px 14px;font:inherit;color:inherit;
+  }
+  .pill-row{display:flex;gap:8px;flex-wrap:wrap}
+  .pill{
+    border:1px solid var(--rule);border-radius:14px;padding:14px 16px;background:var(--paper-2);cursor:pointer;
+    flex:1;min-width:130px;text-align:left;color:inherit;font:inherit;
+  }
+  .pill .t{font-size:20px;font-style:italic;display:block}
+  .pill .s{font-family:Inter,sans-serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2)}
+  .pill.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .pill.on .s{color:#bdb4a4}
+  .pill.on.red{background:var(--red);border-color:var(--red);color:var(--paper)}
+  .vessel-row{display:flex;gap:8px;flex-wrap:wrap}
+  .vessel{
+    border:1px solid var(--rule);border-radius:999px;padding:9px 16px;background:transparent;cursor:pointer;
+    color:inherit;font-family:Inter,sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  }
+  .vessel.on{background:var(--red);border-color:var(--red);color:var(--paper)}
+
+  .axes-block{margin-top:8px}
+  .axis{padding:14px 0;border-top:1px solid var(--rule);display:grid;grid-template-columns:80px 1fr 30px;gap:14px;align-items:center}
+  .axis-name{color:var(--ink-2)}
+  .axis input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:2px;background:var(--rule);outline:none;
+  }
+  .axis input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;width:14px;height:14px;border-radius:50%;background:var(--red);border:0;cursor:pointer;
+  }
+  .axis input[type=range]::-moz-range-thumb{
+    width:14px;height:14px;border-radius:50%;background:var(--red);border:0;cursor:pointer;
+  }
+  .axis .v{font-family:"Cormorant Garamond",serif;font-style:italic;text-align:right;font-size:20px;color:var(--red)}
+  .axis[data-axis=sweet] input[type=range]::-webkit-slider-thumb,
+  .axis[data-axis=sweet] input[type=range]::-moz-range-thumb{background:var(--gold)}
+  .axis[data-axis=sweet] .v{color:var(--gold)}
+  .axis[data-axis=balance] input[type=range]::-webkit-slider-thumb,
+  .axis[data-axis=balance] input[type=range]::-moz-range-thumb{background:var(--olive)}
+  .axis[data-axis=balance] .v{color:var(--olive)}
+  .axis[data-axis=complexity] input[type=range]::-webkit-slider-thumb,
+  .axis[data-axis=complexity] input[type=range]::-moz-range-thumb{background:var(--ink)}
+  .axis[data-axis=complexity] .v{color:var(--ink)}
+
+  .composite{
+    margin-top:18px;padding:18px;border-radius:14px;background:var(--red);color:var(--paper);
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .composite .l{font-family:Inter,sans-serif;font-size:10px;letter-spacing:.2em;text-transform:uppercase}
+  .composite .n{font-size:46px;font-style:italic;line-height:1}
+
+  .btn{
+    border:0;background:var(--ink);color:var(--paper);
+    padding:14px 22px;border-radius:999px;cursor:pointer;
+    letter-spacing:.18em;
+  }
+  .btn.red{background:var(--red)}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+  .actions{display:flex;gap:10px;margin-top:18px}
+
+  /* ===== Splash ===== */
+  .splash{
+    position:fixed;inset:0;background:var(--paper);z-index:200;
+    display:flex;flex-direction:column;justify-content:space-between;padding:32px 28px;
+  }
+  .splash .top .meta{color:var(--ink-2)}
+  .splash .h{
+    font-size:72px;line-height:.9;font-weight:500;margin:18px 0 0;
+  }
+  .splash .h em{color:var(--red);display:block}
+  .splash .body{max-width:30ch;color:var(--ink-2);margin-top:18px}
+  .splash .btns{display:flex;flex-direction:column;gap:10px}
+  .splash .status{font-family:Inter,sans-serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);min-height:14px}
+
+  /* ===== Empty state ===== */
+  .empty{
+    border:1px dashed var(--rule);border-radius:14px;padding:28px;text-align:center;color:var(--ink-2);margin-top:14px;
+  }
+
+  /* ===== Footer issue ribbon ===== */
+  .ribbon{
+    margin:34px 0 18px;text-align:center;color:var(--red);
+    font-family:Inter,sans-serif;font-size:10px;letter-spacing:.3em;text-transform:uppercase;
+  }
+
+  /* hide views by default */
+  .view{display:none}
+  .view.on{display:block}
+
+  /* ===== Sync modal & topbar button ===== */
+  .topbar-right{display:flex;align-items:center;gap:10px}
+  .sync-btn{
+    background:none;border:1px solid var(--rule);border-radius:50%;
+    width:30px;height:30px;color:var(--ink-2);cursor:pointer;font-size:14px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .sync-btn:hover{border-color:var(--ink-2);color:var(--ink)}
+  .sync-btn .dot{
+    position:absolute;width:6px;height:6px;border-radius:50%;background:var(--red);
+    transform:translate(10px,-9px);opacity:0;transition:opacity .25s;
+  }
+  .sync-btn.flash .dot{opacity:1}
+  .modal-back{position:fixed;inset:0;background:rgba(27,22,17,.42);z-index:300}
+  .modal-back[hidden]{display:none}
+  .modal{position:fixed;inset:0;z-index:301;display:flex;align-items:flex-end;justify-content:center;pointer-events:none}
+  .modal[hidden]{display:none}
+  .modal-card{
+    background:var(--paper);width:100%;max-width:520px;border-radius:18px 18px 0 0;
+    padding:22px 22px 28px;box-shadow:0 -10px 30px rgba(27,22,17,.18);pointer-events:auto;
+    animation:slideup .25s ease;
+  }
+  @keyframes slideup{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+  .modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+  .modal-head h2{font-size:40px;line-height:.95;margin:4px 0 0;font-weight:500}
+  .modal-head h2 em{color:var(--red)}
+  .modal-close{background:none;border:0;font-size:26px;color:var(--ink-2);cursor:pointer;line-height:1;padding:0 4px}
+  .kv{display:grid;gap:0;margin:6px 0 8px}
+  .kv > div{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--rule);padding:10px 0}
+  .kv code{
+    font-family:Inter,system-ui,sans-serif;font-size:11px;letter-spacing:.04em;color:var(--ink);
+    max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  #syncIO{font-family:ui-monospace,Menlo,monospace;font-size:11px;line-height:1.4}
+
+  /* Auth panel inside the sync modal */
+  .auth-section{margin-bottom:8px}
+  .auth-section[hidden]{display:none}
+  .link-btn{
+    background:none;border:0;color:var(--ink-2);cursor:pointer;font:inherit;
+    font-family:Inter,sans-serif;font-size:11px;letter-spacing:.08em;text-decoration:underline;
+    padding:0;margin-top:14px;display:inline-block;
+  }
+  .link-btn:hover{color:var(--red)}
+  .devices{list-style:none;padding:0;margin:8px 0 14px}
+  .devices li{
+    display:flex;justify-content:space-between;align-items:center;padding:10px 0;
+    border-top:1px solid var(--rule);font-family:Inter,sans-serif;font-size:13px;
+  }
+  .devices li:first-child{border-top:0}
+  .devices .device-meta{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);margin-top:2px}
+  .devices .remove{
+    font-family:Inter,sans-serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+    background:none;border:0;color:var(--red);cursor:pointer;
+  }
+  .recovery-box{
+    background:var(--paper-2);border:1px dashed var(--red);border-radius:10px;
+    padding:18px 14px;text-align:center;
+  }
+  .recovery-box code{
+    font-family:ui-monospace,Menlo,monospace;font-size:18px;letter-spacing:.12em;
+    color:var(--ink);word-break:break-all;
+  }
+  details summary{
+    list-style:none;padding:8px 0;
+  }
+  details summary::-webkit-details-marker{display:none}
+  details[open] summary{color:var(--ink)}
+
+  @media (max-width:380px){
+    .hero h1{font-size:54px}
+    .form h2, .ledger-head h2{font-size:40px}
+  }
+</style>
+</head>
+<body>
+
+<!-- Reusable tumbler glyph: classic short tumbler, line-drawn, with subtle base refraction -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="tumbler" viewBox="0 0 24 22" overflow="visible">
+      <!-- back arc of rim, faint -->
+      <path d="M3.6 4.2 C 7 2.7, 17 2.7, 20.4 4.2"
+            fill="none" stroke="currentColor" stroke-width="0.9"
+            stroke-opacity=".35" stroke-linecap="round"/>
+      <!-- front arc of rim -->
+      <path d="M3.6 4.2 C 7 5.7, 17 5.7, 20.4 4.2"
+            fill="none" stroke="currentColor" stroke-width="1.1"
+            stroke-linecap="round"/>
+      <!-- left wall, very slight inward taper -->
+      <path d="M3.6 4.2 C 4.0 10, 4.4 15, 5.2 18.2"
+            fill="none" stroke="currentColor" stroke-width="1.1"
+            stroke-linecap="round"/>
+      <!-- right wall -->
+      <path d="M20.4 4.2 C 20.0 10, 19.6 15, 18.8 18.2"
+            fill="none" stroke="currentColor" stroke-width="1.1"
+            stroke-linecap="round"/>
+      <!-- rounded bottom -->
+      <path d="M5.2 18.2 Q 12 20.6, 18.8 18.2"
+            fill="none" stroke="currentColor" stroke-width="1.1"
+            stroke-linecap="round"/>
+      <!-- inner base: thick glass refraction line (subtle) -->
+      <path d="M6.0 15.6 Q 12 17.4, 18.0 15.6"
+            fill="none" stroke="currentColor" stroke-width="0.8"
+            stroke-opacity=".45" stroke-linecap="round"/>
+      <!-- tiny meniscus tick for weight -->
+      <path d="M7.4 16.2 Q 12 17.7, 16.6 16.2"
+            fill="none" stroke="currentColor" stroke-width="0.6"
+            stroke-opacity=".22" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ===== Splash / location prompt ===== -->
+<section id="splash" class="splash">
+  <div class="top">
+    <div class="mark"><svg class="glass lg" aria-hidden="true"><use href="#tumbler"/></svg><span class="word" style="font-size:22px">Negroni Club</span></div>
+    <div class="meta" style="margin-top:8px">An aperitivo, in three equal parts</div>
+    <h1 class="h">Bitter <em>kindness.</em></h1>
+    <p class="body">A quiet society for the world's best three-part drink. We rate, we record, we remember — and we tell you which one is closest.</p>
+  </div>
+  <div class="btns">
+    <div id="locStatus" class="status">Vol. IV · Issue 17 · NQDI · 4 axes · 100 pts</div>
+    <button class="btn red" id="askLoc">Find pours near me →</button>
+    <button class="btn ghost" id="skipLoc">Skip · enter manually</button>
+  </div>
+</section>
+
+<!-- ===== App ===== -->
+<main class="app" id="app" hidden>
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="mark">
+      <svg class="glass" aria-hidden="true"><use href="#tumbler"/></svg>
+      <span class="word">Negroni Club</span>
+    </div>
+    <div class="topbar-right">
+      <div class="meta" id="topMeta">APERITIVO · —</div>
+      <button class="sync-btn" id="syncOpen" aria-label="The pod"><span>⇄</span><span class="dot"></span></button>
+    </div>
+  </header>
+
+  <!-- ============ THE BAR (HOME) ============ -->
+  <section class="view on" data-view="bar">
+    <div class="hero">
+      <div class="meta" id="aperitivo">APERITIVO · SAT 19:42</div>
+      <h1>Bitter <span class="acc">kindness.</span></h1>
+      <p class="sub">Three parts, one ritual. Find one nearby, log the one in your hand, or simply browse what the club has been drinking.</p>
+    </div>
+
+    <div class="grid">
+      <button class="card nearby" data-go="nearby">
+        <div class="label">⊙ Nearby</div>
+        <div class="title">Within<br><span id="nearbyKm">— km</span></div>
+      </button>
+      <button class="card rate" data-go="rate">
+        <div class="plus">+</div>
+        <div>
+          <div class="label">NQDI · 4 axes</div>
+          <div class="title">Rate one</div>
+        </div>
+      </button>
+      <button class="card browse" data-go="ledger">
+        <div>
+          <div class="label" id="ledgerCount">0 entries · since 2024</div>
+          <div class="title">Browse the ledger</div>
+        </div>
+        <div class="chev">⌃</div>
+      </button>
+    </div>
+
+    <div class="sec-head">
+      <span class="label">Pour of the week</span>
+      <span class="iss">VOL. IV · ISSUE 17</span>
+    </div>
+    <div id="potw"></div>
+
+    <div class="ribbon">NQDI · 4 axes · 100 pts</div>
+  </section>
+
+  <!-- ============ LEDGER ============ -->
+  <section class="view" data-view="ledger">
+    <div class="ledger-head">
+      <div class="label" style="color:var(--ink-2)">The</div>
+      <h2><em>ledger.</em></h2>
+    </div>
+    <input class="search" id="ledgerSearch" placeholder="Bar, city, bartender…">
+    <div class="filters">
+      <button class="chip on" data-f="all">All</button>
+      <button class="chip" data-f="classic">Classic</button>
+      <button class="chip" data-f="sbagliato">Sbagliato</button>
+      <button class="chip" data-f="bianco">Bianco</button>
+      <button class="chip" data-f="amaro">Amaro</button>
+    </div>
+    <div id="ledgerList"></div>
+  </section>
+
+  <!-- ============ NEARBY ============ -->
+  <section class="view" data-view="nearby">
+    <div class="ledger-head">
+      <div class="label" style="color:var(--ink-2)">Locate.</div>
+      <h2 id="locTitle">Five <em>within</em></h2>
+    </div>
+    <div class="meta" style="color:var(--ink-2);margin:6px 0 18px" id="locLine">No location set.</div>
+    <div id="nearbyList"></div>
+  </section>
+
+  <!-- ============ RATE ============ -->
+  <section class="view" data-view="rate">
+    <form class="form" id="rateForm" onsubmit="return false">
+      <div class="pre label">Where & what</div>
+      <h2>First, the <em>setting.</em></h2>
+
+      <div class="field">
+        <label class="label">Venue</label>
+        <input class="input" id="rVenue" placeholder="e.g. Bar Basso" required>
+      </div>
+      <div class="field">
+        <label class="label">City</label>
+        <input class="input" id="rCity" placeholder="Milano, IT">
+      </div>
+
+      <div class="field">
+        <label class="label">Variant</label>
+        <div class="pill-row" id="variantRow">
+          <button type="button" class="pill on red" data-v="classic">
+            <span class="t">Classic</span><span class="s">Gin · Vermouth · Campari</span>
+          </button>
+          <button type="button" class="pill" data-v="sbagliato">
+            <span class="t">Sbagliato</span><span class="s">Prosecco swap</span>
+          </button>
+          <button type="button" class="pill" data-v="bianco">
+            <span class="t">Bianco</span><span class="s">Suze · Bianco</span>
+          </button>
+          <button type="button" class="pill" data-v="amaro">
+            <span class="t">Amaro</span><span class="s">Amari swap</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">Vessel</label>
+        <div class="vessel-row" id="vesselRow">
+          <button type="button" class="vessel on" data-x="rocks">Rocks</button>
+          <button type="button" class="vessel" data-x="coupe">Coupe</button>
+          <button type="button" class="vessel" data-x="tumbler">Tumbler</button>
+          <button type="button" class="vessel" data-x="wine">Wine</button>
+        </div>
+      </div>
+
+      <div class="sec-head"><span class="label">The score</span><span class="iss">NQDI · 4 axes · 100 pts</span></div>
+      <div class="axes-block" id="axes">
+        <div class="axis" data-axis="bitter">
+          <div class="axis-name">Bitter</div>
+          <input type="range" min="0" max="100" value="78">
+          <div class="v">78</div>
+        </div>
+        <div class="axis" data-axis="sweet">
+          <div class="axis-name">Sweet</div>
+          <input type="range" min="0" max="100" value="42">
+          <div class="v">42</div>
+        </div>
+        <div class="axis" data-axis="balance">
+          <div class="axis-name">Balance</div>
+          <input type="range" min="0" max="100" value="88">
+          <div class="v">88</div>
+        </div>
+        <div class="axis" data-axis="complexity">
+          <div class="axis-name">Complexity</div>
+          <input type="range" min="0" max="100" value="86">
+          <div class="v">86</div>
+        </div>
+      </div>
+
+      <div class="composite">
+        <div class="l">Composite NQDI</div>
+        <div class="n" id="compositeN">73</div>
+      </div>
+
+      <div class="field" style="margin-top:18px">
+        <label class="label">Tasting note</label>
+        <textarea class="input" id="rNote" rows="3" placeholder="Generous pour, clean ice…"></textarea>
+      </div>
+
+      <div class="actions">
+        <button class="btn red" id="saveBtn">Save to ledger →</button>
+        <button class="btn ghost" id="cancelBtn">Cancel</button>
+      </div>
+    </form>
+  </section>
+
+</main>
+
+<!-- ===== Sync / Account modal ===== -->
+<div id="syncBack" class="modal-back" hidden></div>
+<div id="syncModal" class="modal" hidden role="dialog" aria-labelledby="syncTitle">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <div class="label" style="color:var(--ink-2)">The pod</div>
+        <h2 id="syncTitle"><em>Sync.</em></h2>
+      </div>
+      <button class="modal-close" id="syncClose" aria-label="Close">×</button>
+    </div>
+
+    <!-- Anonymous -->
+    <section class="auth-section" data-auth="anon">
+      <p style="color:var(--ink-2);margin:0 0 14px;font-size:15px">
+        Browse mode — your ledger lives only on this device. Claim it with a passkey to sync across devices.
+      </p>
+      <div class="actions" style="flex-wrap:wrap;gap:8px">
+        <button class="btn red" id="btnClaim">Claim with passkey →</button>
+        <button class="btn ghost" id="btnSignIn">Sign in</button>
+      </div>
+      <button class="link-btn" id="btnRecoverShow">Lost your passkey? Recover with code →</button>
+    </section>
+
+    <!-- Authed -->
+    <section class="auth-section" data-auth="authed" hidden>
+      <div class="kv">
+        <div><span class="label">Signed in as</span><code id="syncUserHandle"></code></div>
+      </div>
+      <div class="label" style="color:var(--ink-2);margin:14px 0 6px">Your devices</div>
+      <ul id="syncDevicesList" class="devices"></ul>
+      <div class="actions" style="flex-wrap:wrap;gap:8px">
+        <button class="btn red" id="btnSyncNow">Sync now</button>
+        <button class="btn ghost" id="btnAddDevice">Add another passkey</button>
+        <button class="btn ghost" id="btnSignOut">Sign out</button>
+      </div>
+    </section>
+
+    <!-- Recovery code displayed once after registration -->
+    <section class="auth-section" data-auth="recovery-show" hidden>
+      <p style="margin:0 0 12px;font-size:15px">
+        <strong style="color:var(--red)">Save this recovery code.</strong>
+        If you lose all your passkeys, this is the only way back to your ledger. We won't show it again.
+      </p>
+      <div class="recovery-box"><code id="recoveryCodeShow"></code></div>
+      <div class="actions" style="margin-top:14px">
+        <button class="btn red" id="btnRecoveryAck">I've saved it →</button>
+        <button class="btn ghost" id="btnRecoveryCopy">Copy</button>
+      </div>
+    </section>
+
+    <!-- Recovery: entering code -->
+    <section class="auth-section" data-auth="recovery-enter" hidden>
+      <p style="color:var(--ink-2);margin:0 0 12px;font-size:15px">
+        Enter the recovery code you saved when you first claimed this ledger. We'll verify it and bind a fresh passkey to your account.
+      </p>
+      <div class="field">
+        <input class="input" id="recoveryCodeInput"
+               placeholder="XXXXX-XXXXX-XXXXX-XXXXX"
+               autocomplete="off" autocapitalize="characters" spellcheck="false"
+               style="font-family:ui-monospace,Menlo,monospace;letter-spacing:.08em">
+      </div>
+      <div class="actions">
+        <button class="btn red" id="btnRecoverGo">Recover →</button>
+        <button class="btn ghost" id="btnRecoverCancel">Cancel</button>
+      </div>
+    </section>
+
+    <hr style="border:0;border-top:1px solid var(--rule);margin:18px 0 14px">
+
+    <details>
+      <summary class="label" style="color:var(--ink-2);cursor:pointer">CRDT internals · manual merge</summary>
+      <div style="margin-top:12px">
+        <div class="kv">
+          <div><span class="label">Actor</span><code id="syncActorRaw"></code></div>
+          <div><span class="label">Ops in log</span><code id="syncOpsCount"></code></div>
+          <div><span class="label">Pours (materialized)</span><code id="syncPoursCount"></code></div>
+          <div><span class="label">Clock</span><code id="syncClock"></code></div>
+        </div>
+        <div class="actions" style="flex-wrap:wrap;margin-top:14px">
+          <button class="btn ghost" id="syncCopy">Copy ops</button>
+          <button class="btn ghost" id="syncPaste">Merge from clipboard</button>
+        </div>
+      </div>
+    </details>
+
+    <div id="syncMsg" class="status"
+         style="font-family:Inter,sans-serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);margin-top:14px;min-height:14px"></div>
+    <textarea id="syncIO" class="input" rows="5" hidden></textarea>
+  </div>
+</div>
+
+<!-- ===== Bottom nav ===== -->
+<nav class="nav" id="nav" hidden>
+  <button data-go="bar" class="active"><svg class="glass" style="width:16px;height:14px"><use href="#tumbler"/></svg><span>Bar</span></button>
+  <button data-go="ledger"><span class="ic">≡</span><span>Browse</span></button>
+  <button class="fab" data-go="rate" aria-label="Rate">+</button>
+  <button data-go="nearby"><span class="ic">⊙</span><span>Nearby</span></button>
+  <button data-go="cellar" disabled style="opacity:.4"><span class="ic">⚲</span><span>Cellar</span></button>
+</nav>
+
+<script src="/vendor/index.umd.min.js"></script>
+<script>
+(() => {
+  // ============================================================
+  // CRDT: G-Set of pours + per-field LWW, ordered by Hybrid Logical Clock.
+  // Op shapes:
+  //   { op:"add", id, value:{...}, hlc, actor }
+  //   { op:"set", id, field, value, hlc, actor }
+  //   { op:"del", id, hlc, actor }                  // 2P-set: tombstone wins
+  // Two replicas with disjoint op logs converge on union; the merge is
+  // commutative, associative, idempotent.
+  // ============================================================
+
+  const KEY = "negroni.crdt.v1";
+  const KEY_OLD = "negroni.club.v1";
+
+  // ---- Hybrid Logical Clock (sortable string: 15-digit ms · 6-digit counter) ----
+  const encHLC = (wall, c) => String(wall).padStart(15,"0") + "-" + String(c).padStart(6,"0");
+  const cmpHLC = (a,b) => a < b ? -1 : a > b ? 1 : 0;
+  const tick = (clk) => {
+    const now = Date.now();
+    if (now > clk.wall) { clk.wall = now; clk.counter = 0; }
+    else { clk.counter++; }
+    return encHLC(clk.wall, clk.counter);
+  };
+  const recv = (clk, hlc) => {
+    const dash = hlc.indexOf("-");
+    const rWall = +hlc.slice(0,dash), rCtr = +hlc.slice(dash+1);
+    const now = Date.now();
+    const newWall = Math.max(clk.wall, rWall, now);
+    if (newWall === clk.wall && newWall === rWall) clk.counter = Math.max(clk.counter, rCtr) + 1;
+    else if (newWall === clk.wall) clk.counter += 1;
+    else if (newWall === rWall)    clk.counter = rCtr + 1;
+    else                           clk.counter = 0;
+    clk.wall = newWall;
+  };
+
+  // ---- State (the pod blob) ----
+  // The CRDT actor is composed: `${userHandle ?? "anon"}.${deviceId}`.
+  // userHandle is the *identity* (assigned by the server, stable across devices);
+  // deviceId is the *replica* (random per browser, stable across sign-ins on this browser).
+  // Same person + two browsers = two actors → concurrent ops tiebreak deterministically.
+  const computeActor = (s) => (s.userHandle || "anon") + "." + s.deviceId;
+  const blank = () => {
+    const deviceId = "d_" + Math.random().toString(36).slice(2,10);
+    return {
+      deviceId,
+      userHandle: null,
+      actor: "anon." + deviceId,
+      clock: { wall: 0, counter: 0 },
+      ops: [],
+      // per-device, deliberately NOT in the CRDT
+      location: null,
+      onboarded: false,
+      seeded: false,
+      syncUrl: ""
+    };
+  };
+  let state = (() => {
+    try { return Object.assign(blank(), JSON.parse(localStorage.getItem(KEY)) || {}); }
+    catch { return blank(); }
+  })();
+  // older state objects may lack deviceId — backfill and recompute the actor.
+  if (!state.deviceId) state.deviceId = "d_" + Math.random().toString(36).slice(2,10);
+  state.actor = computeActor(state);
+  const persist = () => localStorage.setItem(KEY, JSON.stringify(state));
+
+  // ---- Apply an op locally and bump the clock if it came from elsewhere ----
+  const opKey = (op) => op.actor + ":" + op.hlc;
+  const knownOps = new Set(state.ops.map(opKey));
+
+  // ---- Materialize: replay ops (in HLC order) into a public `pours` array ----
+  let pours = [];
+  const materialize = () => {
+    const sorted = [...state.ops].sort((a,b) =>
+      cmpHLC(a.hlc, b.hlc) || a.actor.localeCompare(b.actor)
+    );
+    const map = {}, tomb = {};
+    for (const op of sorted) {
+      if (op.op === "del") {
+        if (cmpHLC(op.hlc, tomb[op.id] || "") > 0) tomb[op.id] = op.hlc;
+        delete map[op.id];
+      } else if (op.op === "add") {
+        if (tomb[op.id] || map[op.id]) continue;
+        const v = op.value || {};
+        const clocks = {};
+        for (const k of Object.keys(v)) clocks[k] = op.hlc;
+        map[op.id] = { id: op.id, ...v, _clocks: clocks, _addedAt: op.hlc };
+      } else if (op.op === "set") {
+        if (tomb[op.id]) continue;
+        const p = map[op.id]; if (!p) continue;
+        if (cmpHLC(op.hlc, p._clocks[op.field] || "") > 0) {
+          p[op.field] = op.value;
+          p._clocks[op.field] = op.hlc;
+        }
+      }
+    }
+    pours = Object.values(map).map(({_clocks, ...rest}) => rest);
+  };
+
+  // ---- Mutators (the only way state.ops grows from local intent) ----
+  let _pushTimer = null;
+  const schedulePush = () => {
+    if (!state.userHandle) return;
+    clearTimeout(_pushTimer);
+    _pushTimer = setTimeout(() => { syncUp().catch(()=>{}); }, 800);
+  };
+  const pushOp = (op) => {
+    state.ops.push(op);
+    knownOps.add(opKey(op));
+    persist();
+    materialize();
+    schedulePush();
+  };
+  const addPour = (value) => {
+    const id = "p_" + Math.random().toString(36).slice(2,10);
+    pushOp({ op:"add", id, value, hlc: tick(state.clock), actor: state.actor });
+    return id;
+  };
+  const setField = (id, field, value) =>
+    pushOp({ op:"set", id, field, value, hlc: tick(state.clock), actor: state.actor });
+  const delPour = (id) =>
+    pushOp({ op:"del", id, hlc: tick(state.clock), actor: state.actor });
+
+  // ---- Merge a foreign op log (the heart of the CRDT) ----
+  const mergeOps = (incoming) => {
+    let added = 0;
+    for (const op of (incoming || [])) {
+      if (knownOps.has(opKey(op))) continue;
+      state.ops.push(op);
+      knownOps.add(opKey(op));
+      recv(state.clock, op.hlc);
+      added++;
+    }
+    if (added) { persist(); materialize(); }
+    return added;
+  };
+
+  // ---- Migration from pre-CRDT format ----
+  if (state.ops.length === 0) {
+    try {
+      const old = JSON.parse(localStorage.getItem(KEY_OLD) || "null");
+      if (old?.pours?.length) {
+        for (const p of old.pours) {
+          const { id: _drop, ...val } = p;
+          state.ops.push({ op:"add", id: p.id || ("p_"+Math.random().toString(36).slice(2,10)),
+                           value: val, hlc: tick(state.clock), actor: state.actor });
+        }
+        if (old.location) state.location = old.location;
+        if (old.onboarded) state.onboarded = old.onboarded;
+        if (old.seeded)    state.seeded = old.seeded;
+        for (const op of state.ops) knownOps.add(opKey(op));
+        persist();
+      }
+    } catch {}
+  }
+
+  // ---- Seed (idempotent: fixed ids; first add wins, later devices' adds drop) ----
+  if (!state.seeded && state.ops.length === 0) {
+    const seeds = [
+      ["seed_basso",   { venue:"Bar Basso",     city:"Milano, IT",     variant:"classic",   vessel:"tumbler", bitter:88, sweet:50, balance:95, complexity:92, note:"The reference. Mirko's Negroni Sbagliato lineage shows — measured, almost mathematical.", ts:Date.now()-86400000*4,  lat:45.4842, lng:9.2128 }],
+      ["seed_soter",   { venue:"Soter & Vine",  city:"Lisbon, PT",     variant:"classic",   vessel:"rocks",   bitter:78, sweet:42, balance:88, complexity:86, note:"Generous pour, clean ice. Bartender stirred to a glassy sheen — barely diluted on first sip.", ts:Date.now()-86400000*9,  lat:38.7167, lng:-9.1393 }],
+      ["seed_dante",   { venue:"Dante",         city:"New York, US",   variant:"classic",   vessel:"rocks",   bitter:80, sweet:55, balance:80, complexity:84, note:"World's Best Bar pedigree, lives up. Five-Negroni menu — the classic still wins.", ts:Date.now()-86400000*15, lat:40.7295, lng:-73.9965 }],
+      ["seed_tides",   { venue:"House of Tides",city:"Newcastle, UK",  variant:"sbagliato", vessel:"coupe",   bitter:72, sweet:60, balance:90, complexity:82, note:"Prosecco swap done with restraint. Lighter, less brooding — afternoon Negroni.", ts:Date.now()-86400000*22, lat:54.9714, lng:-1.6028 }],
+      ["seed_rivoire", { venue:"Caffè Rivoire", city:"Firenze, IT",    variant:"classic",   vessel:"tumbler", bitter:74, sweet:62, balance:78, complexity:75, note:"Tourist-priced but the room earns it. Standard pour, sound build.", ts:Date.now()-86400000*30, lat:43.7696, lng:11.2558 }],
+    ];
+    for (const [id, value] of seeds) {
+      pushOp({ op:"add", id, value, hlc: tick(state.clock), actor: state.actor });
+    }
+    state.seeded = true;
+    persist();
+  }
+  materialize();
+
+  // ---- Cross-tab CRDT merge (free demo: two tabs are two replicas) ----
+  window.addEventListener("storage", (e) => {
+    if (e.key !== KEY || !e.newValue) return;
+    try {
+      const remote = JSON.parse(e.newValue);
+      const before = state.ops.length;
+      mergeOps(remote.ops);
+      if (state.ops.length !== before) {
+        render();
+        const active = document.querySelector(".view.on")?.dataset.view;
+        if (active === "ledger") renderLedger();
+        if (active === "nearby") renderNearby();
+      }
+    } catch {}
+  });
+
+  // ---------- Helpers ----------
+  const $ = (s, r=document) => r.querySelector(s);
+  const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+  const composite = (p) => Math.round((p.bitter*0.30 + p.balance*0.30 + p.complexity*0.25 + (100-Math.abs(p.sweet-50))*0.15));
+  const km = (a,b) => {
+    if (!a || !b) return null;
+    const R=6371, toR=x=>x*Math.PI/180;
+    const dLat=toR(b.lat-a.lat), dLng=toR(b.lng-a.lng);
+    const x = Math.sin(dLat/2)**2 + Math.cos(toR(a.lat))*Math.cos(toR(b.lat))*Math.sin(dLng/2)**2;
+    return 2*R*Math.asin(Math.sqrt(x));
+  };
+  const fmtAperitivo = () => {
+    const d = new Date();
+    const days = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
+    const hh = String(d.getHours()).padStart(2,"0");
+    const mm = String(d.getMinutes()).padStart(2,"0");
+    return `APERITIVO · ${days[d.getDay()]} ${hh}:${mm}`;
+  };
+  const niceLoc = (loc) => {
+    if (!loc) return "No location set.";
+    if (loc.label) return loc.label;
+    return `${loc.lat.toFixed(3)}° ${loc.lat>=0?"N":"S"} · ${loc.lng.toFixed(3)}° ${loc.lng>=0?"E":"W"}`;
+  };
+
+  // ---------- Splash / location ----------
+  const splash = $("#splash"), app = $("#app"), nav = $("#nav");
+  const showApp = () => {
+    splash.style.display = "none";
+    app.hidden = false;
+    nav.hidden = false;
+    render();
+  };
+
+  $("#askLoc").addEventListener("click", () => {
+    const status = $("#locStatus");
+    if (!("geolocation" in navigator)) {
+      status.textContent = "Geolocation unavailable. Skipping.";
+      state.onboarded = true; persist(); return showApp();
+    }
+    status.textContent = "Asking the wind…";
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        state.location = { lat: pos.coords.latitude, lng: pos.coords.longitude, ts: Date.now() };
+        state.onboarded = true; persist();
+        showApp();
+      },
+      (err) => {
+        status.textContent = "Location declined. You can rate manually.";
+        state.onboarded = true; persist();
+        setTimeout(showApp, 700);
+      },
+      { enableHighAccuracy:false, timeout:8000, maximumAge:600000 }
+    );
+  });
+  $("#skipLoc").addEventListener("click", () => {
+    state.onboarded = true; persist(); showApp();
+  });
+
+  // ---------- Routing ----------
+  const go = (name) => {
+    $$(".view").forEach(v => v.classList.toggle("on", v.dataset.view === name));
+    $$(".nav button").forEach(b => b.classList.toggle("active", b.dataset.go === name));
+    window.scrollTo(0,0);
+    if (name === "ledger") renderLedger();
+    if (name === "nearby") renderNearby();
+    if (name === "rate") resetRate();
+  };
+  document.addEventListener("click", (e) => {
+    const t = e.target.closest("[data-go]");
+    if (t) { e.preventDefault(); go(t.dataset.go); }
+  });
+
+  // ---------- Render: top + home ----------
+  const render = () => {
+    $("#topMeta").textContent = fmtAperitivo();
+    $("#aperitivo").textContent = fmtAperitivo();
+    $("#ledgerCount").textContent = `${pours.length} entries · since 2024`;
+
+    // nearby preview
+    const within = nearestN(5);
+    if (state.location && within.length) {
+      const max = within[within.length-1].dist;
+      $("#nearbyKm").textContent = `${max.toFixed(1)} km`;
+    } else {
+      $("#nearbyKm").textContent = `${pours.length} logged`;
+    }
+
+    // pour of the week = highest composite
+    const top = [...pours].sort((a,b) => composite(b)-composite(a))[0];
+    $("#potw").innerHTML = top ? potwHtml(top) : `<div class="empty">No pours yet. Rate one to start the ledger.</div>`;
+  };
+
+  const potwHtml = (p) => `
+    <div class="pour">
+      <div class="glassbox" aria-hidden="true"></div>
+      <div class="body">
+        <h3 class="name">${escapeHtml(p.venue)}</h3>
+        <div class="where">${escapeHtml(p.city||"—")}</div>
+        <div class="axes">
+          <span>Bitter <b>${p.bitter}</b></span>
+          <span>Sweet <b>${p.sweet}</b></span>
+          <span>Balance <b>${p.balance}</b></span>
+          <span>Complexity <b>${p.complexity}</b></span>
+        </div>
+      </div>
+      <div class="nqdi"><div class="n">${composite(p)}</div><div class="l">NQDI</div></div>
+    </div>`;
+
+  // ---------- Ledger ----------
+  let filter = "all", q = "";
+  $("#ledgerSearch").addEventListener("input", (e) => { q = e.target.value.toLowerCase(); renderLedger(); });
+  $$(".filters .chip").forEach(c => c.addEventListener("click", () => {
+    $$(".filters .chip").forEach(x => x.classList.remove("on"));
+    c.classList.add("on"); filter = c.dataset.f; renderLedger();
+  }));
+
+  const renderLedger = () => {
+    const list = $("#ledgerList");
+    let rows = [...pours].sort((a,b) => composite(b)-composite(a));
+    if (filter !== "all") rows = rows.filter(p => p.variant === filter);
+    if (q) rows = rows.filter(p => (p.venue+" "+p.city+" "+(p.note||"")).toLowerCase().includes(q));
+    if (!rows.length) {
+      list.innerHTML = `<div class="empty">No entries match. Rate one — or clear the filter.</div>`;
+      return;
+    }
+    list.innerHTML = rows.map((p,i) => rowHtml(p,i+1)).join("");
+  };
+
+  const barsFor = (n) => {
+    const lit = Math.max(0, Math.min(10, Math.round(n/10)));
+    return Array.from({length:10}, (_,i) => `<i class="${i<lit?"":"off"}"></i>`).join("");
+  };
+
+  const rowHtml = (p, i) => `
+    <div class="row">
+      <div class="num">No. ${String(i).padStart(2,"0")}</div>
+      <div class="body">
+        <h3 class="name">${escapeHtml(p.venue)}</h3>
+        <div class="where">${escapeHtml(p.city||"—")}</div>
+        ${p.note ? `<div class="quote">"${escapeHtml(p.note)}"</div>` : ""}
+        <div class="tags">
+          <span class="tag">${p.variant}</span>
+          <span class="tag dark">${p.vessel}</span>
+        </div>
+      </div>
+      <div class="score">
+        <div class="n">${composite(p)}</div>
+        <div class="l">NQDI</div>
+        <div class="bars">${barsFor(composite(p))}</div>
+      </div>
+    </div>`;
+
+  // ---------- Nearby ----------
+  const nearestN = (n) => {
+    if (!state.location) return [];
+    return pours
+      .filter(p => p.lat != null && p.lng != null)
+      .map(p => ({...p, dist: km(state.location, p)}))
+      .sort((a,b) => a.dist-b.dist)
+      .slice(0,n);
+  };
+  const renderNearby = () => {
+    $("#locLine").textContent = niceLoc(state.location);
+    const list = $("#nearbyList");
+    if (!state.location) {
+      list.innerHTML = `<div class="empty">Set a location to see what's near. <br><br><button class="btn red" id="askLoc2">Use my location</button></div>`;
+      $("#askLoc2")?.addEventListener("click", () => {
+        navigator.geolocation?.getCurrentPosition((pos) => {
+          state.location = { lat: pos.coords.latitude, lng: pos.coords.longitude, ts: Date.now() };
+          persist();
+          renderNearby();
+          render();
+        });
+      });
+      return;
+    }
+    const within = nearestN(5);
+    if (!within.length) {
+      list.innerHTML = `<div class="empty">No geo-tagged pours yet.</div>`;
+      return;
+    }
+    $("#locTitle").innerHTML = `${["One","Two","Three","Four","Five"][Math.min(4,within.length-1)]} <em>within</em>`;
+    list.innerHTML = within.map((p,i) => `
+      <div class="row">
+        <div class="num">${p.dist.toFixed(1)} KM</div>
+        <div class="body">
+          <h3 class="name">${escapeHtml(p.venue)}</h3>
+          <div class="where">${escapeHtml(p.city||"—")} · ${Math.round(p.dist*12)} min walk</div>
+          <div class="tags">
+            <span class="tag">${p.variant}</span>
+          </div>
+        </div>
+        <div class="score"><div class="n">${composite(p)}</div><div class="l">NQDI</div></div>
+      </div>
+    `).join("");
+  };
+
+  // ---------- Rate ----------
+  const rateState = { variant:"classic", vessel:"rocks" };
+
+  $$("#variantRow .pill").forEach(b => b.addEventListener("click", () => {
+    $$("#variantRow .pill").forEach(x => x.classList.remove("on","red"));
+    b.classList.add("on","red");
+    rateState.variant = b.dataset.v;
+  }));
+  $$("#vesselRow .vessel").forEach(b => b.addEventListener("click", () => {
+    $$("#vesselRow .vessel").forEach(x => x.classList.remove("on"));
+    b.classList.add("on");
+    rateState.vessel = b.dataset.x;
+  }));
+  const updateComposite = () => {
+    const vals = {};
+    $$("#axes .axis").forEach(a => {
+      const k = a.dataset.axis;
+      const v = +a.querySelector("input").value;
+      vals[k] = v;
+      a.querySelector(".v").textContent = v;
+    });
+    const p = { ...vals };
+    $("#compositeN").textContent = composite(p);
+  };
+  $$("#axes input").forEach(i => i.addEventListener("input", updateComposite));
+  updateComposite();
+
+  const resetRate = () => { /* keep state across navigations; sliders remain */ };
+
+  $("#cancelBtn").addEventListener("click", () => go("bar"));
+  $("#saveBtn").addEventListener("click", () => {
+    const venue = $("#rVenue").value.trim();
+    if (!venue) { $("#rVenue").focus(); return; }
+    addPour({
+      venue,
+      city: $("#rCity").value.trim() || (state.location ? niceLoc(state.location) : ""),
+      variant: rateState.variant,
+      vessel: rateState.vessel,
+      bitter: +$$("#axes .axis")[0].querySelector("input").value,
+      sweet: +$$("#axes .axis")[1].querySelector("input").value,
+      balance: +$$("#axes .axis")[2].querySelector("input").value,
+      complexity: +$$("#axes .axis")[3].querySelector("input").value,
+      note: $("#rNote").value.trim(),
+      ts: Date.now(),
+      lat: state.location?.lat ?? null,
+      lng: state.location?.lng ?? null,
+    });
+    $("#rVenue").value = ""; $("#rCity").value = ""; $("#rNote").value = "";
+    render();
+    go("ledger");
+  });
+
+  // ---------- util ----------
+  function escapeHtml(s){ return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
+
+  // ============================================================
+  // Sync UI / WebAuthn auth
+  // ------------------------------------------------------------
+  // Three layers of sync, all funnelling through mergeOps():
+  //   1. cross-tab via the storage event (already wired above)
+  //   2. clipboard handoff (manual debug path, kept under "CRDT internals")
+  //   3. authenticated pod: HTTP GET /pod → mergeOps; PUT /pod → write blob
+  //
+  // Identity is via WebAuthn passkeys. The userHandle is the stable user id;
+  // multiple passkeys can map to the same userHandle (one per device, plus
+  // optional hardware backups). A scrypt-hashed recovery code is the fallback
+  // for "I lost all my devices."
+  // ============================================================
+
+  const wa = window.SimpleWebAuthnBrowser; // may be undefined if /vendor failed to load
+  const syncBack = $("#syncBack"), syncModal = $("#syncModal"), syncMsg = $("#syncMsg");
+  const setMsg = (m) => { syncMsg.textContent = m || ""; };
+  const flash  = (m) => {
+    setMsg(m);
+    const btn = $("#syncOpen"); btn.classList.add("flash");
+    setTimeout(() => btn.classList.remove("flash"), 1500);
+  };
+
+  const apiPost = async (url, body) => {
+    const r = await fetch(url, {
+      method: "POST",
+      credentials: "include",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body || {}),
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || `HTTP ${r.status}`);
+    return data;
+  };
+
+  const fetchMe = async () => {
+    try {
+      const r = await fetch("/me", { credentials: "include" });
+      return r.ok ? r.json() : { authed: false };
+    } catch { return { authed: false }; }
+  };
+
+  const setAuthed = (userHandle) => {
+    state.userHandle = userHandle;
+    state.actor = computeActor(state);
+    persist();
+  };
+  const setAnon = () => {
+    state.userHandle = null;
+    state.actor = computeActor(state);
+    persist();
+  };
+
+  // ---- WebAuthn flows ----
+  async function doClaim() {
+    if (!wa) throw new Error("WebAuthn library not loaded");
+    const start = await apiPost("/webauthn/register/start", {});
+    const att   = await wa.startRegistration({ optionsJSON: start.options });
+    const fin   = await apiPost("/webauthn/register/finish", { userHandle: start.userHandle, response: att });
+    setAuthed(fin.userHandle);
+    return fin; // { recoveryCode? }
+  }
+  async function doSignIn() {
+    if (!wa) throw new Error("WebAuthn library not loaded");
+    const start = await apiPost("/webauthn/authenticate/start", {});
+    const ass   = await wa.startAuthentication({ optionsJSON: start.options });
+    const fin   = await apiPost("/webauthn/authenticate/finish", { response: ass });
+    setAuthed(fin.userHandle);
+    return fin;
+  }
+  async function doSignOut() {
+    try { await apiPost("/logout", {}); } catch {}
+    setAnon();
+  }
+  async function doAddDevice() {
+    if (!wa) throw new Error("WebAuthn library not loaded");
+    const start = await apiPost("/webauthn/register/start", {});
+    const att   = await wa.startRegistration({ optionsJSON: start.options });
+    return apiPost("/webauthn/register/finish", { userHandle: start.userHandle, response: att });
+  }
+  async function doRecover(recoveryCode) {
+    if (!wa) throw new Error("WebAuthn library not loaded");
+    const verified = await apiPost("/recover/start", { recoveryCode });
+    const start    = await apiPost("/webauthn/register/start", {
+      recoveryUserHandle: verified.userHandle,
+      recoveryToken: verified.recoveryToken,
+    });
+    const att = await wa.startRegistration({ optionsJSON: start.options });
+    const fin = await apiPost("/webauthn/register/finish", {
+      userHandle: start.userHandle,
+      response: att,
+      recoveryToken: start.recoveryReissue,
+    });
+    setAuthed(fin.userHandle);
+    return fin;
+  }
+
+  // ---- Pod sync (authenticated) ----
+  async function syncDown() {
+    if (!state.userHandle) return 0;
+    const r = await fetch("/pod", { credentials: "include" });
+    if (!r.ok) return 0;
+    const { ops } = await r.json();
+    return mergeOps(ops);
+  }
+  async function syncUp() {
+    if (!state.userHandle) return false;
+    const r = await fetch("/pod", {
+      method: "PUT",
+      credentials: "include",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ops: state.ops }),
+    });
+    return r.ok;
+  }
+  async function fullSync() {
+    const added = await syncDown();
+    if (added) { render(); const v = $(".view.on")?.dataset.view;
+      if (v === "ledger") renderLedger(); if (v === "nearby") renderNearby();
+    }
+    await syncUp();
+    return added;
+  }
+
+  // ---- Modal state machine ----
+  const showSection = (which) => {
+    $$("#syncModal .auth-section").forEach(s => s.hidden = true);
+    const n = $(`#syncModal [data-auth="${which}"]`);
+    if (n) n.hidden = false;
+  };
+
+  const renderInternals = () => {
+    $("#syncActorRaw").textContent = state.actor;
+    $("#syncOpsCount").textContent = String(state.ops.length);
+    $("#syncPoursCount").textContent = String(pours.length);
+    $("#syncClock").textContent = encHLC(state.clock.wall, state.clock.counter);
+  };
+
+  const renderAuthState = async (override) => {
+    renderInternals();
+    if (override) { showSection(override); return; }
+
+    let me = { authed: false };
+    if (state.userHandle) {
+      me = await fetchMe();
+      if (!me.authed) setAnon();      // session lapsed → drop client claim
+    }
+
+    if (me.authed) {
+      $("#syncUserHandle").textContent = me.userHandle.slice(0, 14) + "…";
+      $("#syncDevicesList").innerHTML = me.credentials.map(c => `
+        <li>
+          <div>
+            <div>${escapeHtml(c.device_label || "browser")}</div>
+            <div class="device-meta">added ${new Date(c.created_at).toISOString().slice(0,10)}</div>
+          </div>
+          ${me.credentials.length > 1 ? `<button class="remove" data-cred="${escapeHtml(c.credential_id)}">remove</button>` : ""}
+        </li>
+      `).join("");
+      $$("#syncDevicesList .remove").forEach(b => b.addEventListener("click", async () => {
+        try {
+          const r = await fetch(`/credentials/${encodeURIComponent(b.dataset.cred)}`, {
+            method: "DELETE", credentials: "include"
+          });
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          await renderAuthState();
+        } catch (err) { setMsg("Remove failed: " + err.message); }
+      }));
+      showSection("authed");
+    } else {
+      showSection("anon");
+    }
+  };
+
+  const openSync = async () => {
+    setMsg("");
+    syncBack.hidden = false; syncModal.hidden = false;
+    await renderAuthState();
+  };
+  const closeSync = () => {
+    syncBack.hidden = true; syncModal.hidden = true;
+    $("#syncIO").hidden = true; $("#syncIO").value = "";
+  };
+
+  $("#syncOpen").addEventListener("click", openSync);
+  $("#syncClose").addEventListener("click", closeSync);
+  syncBack.addEventListener("click", closeSync);
+
+  // ---- Auth buttons ----
+  $("#btnClaim").addEventListener("click", async () => {
+    setMsg("Asking your password manager for a passkey…");
+    try {
+      const fin = await doClaim();
+      setMsg("Claimed. Pushing your ledger to the pod…");
+      await syncUp();
+      if (fin.recoveryCode) {
+        $("#recoveryCodeShow").textContent = fin.recoveryCode;
+        showSection("recovery-show");
+      } else {
+        await renderAuthState();
+      }
+      flash("ledger claimed");
+    } catch (err) { setMsg("Claim failed: " + err.message); }
+  });
+
+  $("#btnSignIn").addEventListener("click", async () => {
+    setMsg("Asking your password manager for a passkey…");
+    try {
+      await doSignIn();
+      setMsg("Signed in. Pulling your pod…");
+      const added = await fullSync();
+      await renderAuthState();
+      flash(`signed in · pulled ${added}`);
+    } catch (err) { setMsg("Sign in failed: " + err.message); }
+  });
+
+  $("#btnSignOut").addEventListener("click", async () => {
+    await doSignOut();
+    await renderAuthState();
+    setMsg("Signed out. Local ledger preserved.");
+  });
+
+  $("#btnAddDevice").addEventListener("click", async () => {
+    setMsg("Pairing this browser with another passkey…");
+    try {
+      await doAddDevice();
+      await renderAuthState();
+      flash("device added");
+    } catch (err) { setMsg("Pairing failed: " + err.message); }
+  });
+
+  $("#btnSyncNow").addEventListener("click", async () => {
+    setMsg("Syncing…");
+    try {
+      const added = await fullSync();
+      renderInternals();
+      flash(`synced · pulled ${added}, total ${state.ops.length} ops`);
+    } catch (err) { setMsg("Sync failed: " + err.message); }
+  });
+
+  // ---- Recovery flow ----
+  $("#btnRecoverShow").addEventListener("click", () => { setMsg(""); showSection("recovery-enter"); });
+  $("#btnRecoverCancel").addEventListener("click", () => { setMsg(""); renderAuthState(); });
+  $("#btnRecoverGo").addEventListener("click", async () => {
+    const code = $("#recoveryCodeInput").value.trim();
+    if (!code) { setMsg("Enter your recovery code."); return; }
+    setMsg("Verifying recovery code…");
+    try {
+      await doRecover(code);
+      setMsg("Recovered. Pulling your pod…");
+      const added = await fullSync();
+      await renderAuthState();
+      flash(`recovered · new passkey enrolled · pulled ${added}`);
+    } catch (err) { setMsg("Recovery failed: " + err.message); }
+  });
+  $("#btnRecoveryAck").addEventListener("click", async () => { setMsg(""); await renderAuthState(); });
+  $("#btnRecoveryCopy").addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText($("#recoveryCodeShow").textContent);
+      setMsg("Recovery code copied to clipboard.");
+    } catch { setMsg("Clipboard blocked. Copy it manually."); }
+  });
+
+  // ---- Manual op-blob handoff (the original CRDT demo path) ----
+  $("#syncCopy").addEventListener("click", async () => {
+    const blob = JSON.stringify({ actor: state.actor, ops: state.ops });
+    try {
+      await navigator.clipboard.writeText(blob);
+      setMsg(`Copied ${state.ops.length} ops to clipboard.`);
+    } catch {
+      const ta = $("#syncIO"); ta.hidden = false; ta.value = blob; ta.select();
+      setMsg("Clipboard blocked — copy this manually.");
+    }
+  });
+  $("#syncPaste").addEventListener("click", async () => {
+    let text = "";
+    try { text = await navigator.clipboard.readText(); } catch {}
+    if (!text) {
+      const ta = $("#syncIO"); ta.hidden = false;
+      ta.placeholder = "Paste an op blob here, then click Merge again.";
+      ta.focus();
+      if (!ta.value) { setMsg("Paste into the box, then click again."); return; }
+      text = ta.value;
+    }
+    let parsed;
+    try { parsed = JSON.parse(text); }
+    catch { setMsg("Not valid JSON."); return; }
+    const added = mergeOps(parsed.ops || parsed);
+    setMsg(`Merged ${added} new op${added===1?"":"s"} (de-duped against existing log).`);
+    if (added) { render(); flash("merged"); }
+    renderInternals();
+  });
+
+  // ---- Boot: reconcile auth + pull pod, then render the splash/app ----
+  (async () => {
+    if (state.userHandle) {
+      // Confirm session is still valid; if so, sync down on launch.
+      const me = await fetchMe();
+      if (!me.authed) {
+        setAnon();
+      } else {
+        try { await fullSync(); } catch {}
+      }
+    }
+    if (state.onboarded) showApp();
+  })();
+})();
+</script>
+</body>
+</html>
