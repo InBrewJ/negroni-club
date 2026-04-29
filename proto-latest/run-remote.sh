@@ -20,8 +20,8 @@ REMOTE_DIR="${REMOTE_DIR:-/tmp}"
 CONTAINER="${CONTAINER:-proto-negroni-club}"
 DATA_VOLUME="${DATA_VOLUME:-proto-negroni-club-data}"
 PORT="${PORT:-3300}"                       # host port (bound to 127.0.0.1; nginx proxies to it)
-ORIGIN="${ORIGIN:-https://nc.dryark.uk}"
-RP_ID="${RP_ID:-nc.dryark.uk}"
+ORIGIN="${ORIGIN:-https://www.negroni.club}"
+RP_ID="${RP_ID:-negroni.club}"
 
 echo "→ remote: ${SSH_TARGET}"
 echo "  image:  ${IMAGE}:${TAG}"

@@ -12,7 +12,7 @@
 //   /club/feed                      → network-first, cache fallback
 //   everything else (auth, pod, …)  → network-only
 
-const VERSION     = "v57b-dark-mode";
+const VERSION     = "v61";
 const SHELL_CACHE = `nc-shell-${VERSION}`;
 const TILE_CACHE  = `nc-tiles-${VERSION}`;
 const FEED_CACHE  = `nc-feed-${VERSION}`;
@@ -36,7 +36,9 @@ self.addEventListener("install", (event) => {
       .map((r, i) => r.status === "rejected" ? SHELL[i] : null)
       .filter(Boolean);
     if (failed.length) console.warn("[sw] shell items failed:", failed);
-    await self.skipWaiting();
+    // No skipWaiting here: we want new SWs to sit in 'waiting' so the page's
+    // Check-for-Updates flow can show a Reload button. The page posts
+    // {type:"SKIP_WAITING"} on user tap; see the message listener below.
   })());
 });
 
@@ -47,6 +49,10 @@ self.addEventListener("activate", (event) => {
     await Promise.all(names.filter(n => !allowed.has(n)).map(n => caches.delete(n)));
     await self.clients.claim();
   })());
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") self.skipWaiting();
 });
 
 const isShell = (url) =>

@@ -352,6 +352,12 @@
     content:"";position:absolute;width:9px;height:9px;border-radius:50%;
     background:var(--ink-2);right:-2px;top:-2px;border:2px solid var(--paper);
   }
+  @keyframes nc-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  .sync-btn.spinning > span:first-child { display: inline-block; animation: nc-spin 700ms linear infinite; }
+  .sync-btn[disabled] { opacity: .55; pointer-events: none; }
   .modal-back{position:fixed;inset:0;background:rgba(27,22,17,.42);z-index:300}
   .modal-back[hidden]{display:none}
   .modal{position:fixed;inset:0;z-index:301;display:flex;align-items:flex-end;justify-content:center;pointer-events:none}
@@ -693,6 +699,7 @@
     </div>
     <div class="topbar-right">
       <div class="meta" id="topMeta">APERITIVO · —</div>
+      <button class="sync-btn" id="refreshBtn" aria-label="Refresh"><span>↻</span></button>
       <button class="sync-btn" id="syncOpen" aria-label="The pod"><span>⇄</span><span class="dot"></span></button>
     </div>
   </header>
@@ -929,6 +936,14 @@
     </section>
 
     <hr style="border:0;border-top:1px solid var(--rule);margin:18px 0 14px">
+
+    <div id="updateRow" class="actions" style="align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px">
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <span class="label" style="color:var(--ink-2)">App version</span>
+        <code id="appVersionShow"></code>
+      </div>
+      <button class="btn ghost" id="btnCheckUpdate">Check for updates</button>
+    </div>
 
     <details>
       <summary class="label" style="color:var(--ink-2);cursor:pointer">CRDT internals · manual merge</summary>
@@ -1239,7 +1254,7 @@
   const render = () => {
     $("#topMeta").textContent = fmtAperitivo();
     $("#aperitivo").textContent = fmtAperitivo();
-    $("#ledgerCount").textContent = `${pours.length} entries · since 2024`;
+    $("#ledgerCount").textContent = `${pours.length} entries · since 2026`;
 
     // Nearby card now points at the public club feed.
     if (state.location) {
@@ -1988,6 +2003,18 @@
     refreshPublishToggle();
   };
 
+  // Mid-session 401: drop the local "claimed" flag, leave a message in the
+  // sync sheet, and flash #syncOpen so the user notices the next time they
+  // glance at the topbar. Without this, syncDown/syncUp would silently 0/false
+  // and the user would think their writes were publishing.
+  const handleSessionExpired = () => {
+    setAnon();
+    setMsg("Session expired — sign in again");
+    const btn = $("#syncOpen");
+    btn.classList.add("flash");
+    setTimeout(() => btn.classList.remove("flash"), 1500);
+  };
+
   // ---- WebAuthn flows ----
   async function doClaim() {
     if (!wa) throw new Error("WebAuthn library not loaded");
@@ -2036,6 +2063,7 @@
   async function syncDown() {
     if (!state.userHandle) return 0;
     const r = await fetch("/pod", { credentials: "include" });
+    if (r.status === 401) { handleSessionExpired(); return 0; }
     if (!r.ok) return 0;
     const { ops } = await r.json();
     return mergeOps(ops);
@@ -2048,6 +2076,7 @@
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ ops: state.ops }),
     });
+    if (r.status === 401) { handleSessionExpired(); return false; }
     return r.ok;
   }
   async function fullSync() {
@@ -2259,12 +2288,110 @@
   });
   refreshThemeUI();
 
+  // Bumped in lockstep with VERSION in sw.js. The page can't read sw.js's
+  // VERSION directly, so this duplication is accepted release discipline.
+  const APP_VERSION = "v61";
+  document.getElementById("appVersionShow").textContent = APP_VERSION;
+
   // ---- Service worker: app shell + map tiles cached for offline use ----
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
       navigator.serviceWorker.register("/sw.js").catch(() => {});
     });
   }
+
+  // Refresh: refetch /club/feed + run pod sync. Spinner is the in-flight cue;
+  // the data update is the success cue. Errors flash #syncOpen so the user
+  // knows to open the sheet for details.
+  let _refreshing = false;
+  const onRefresh = async () => {
+    const btn = $("#refreshBtn");
+    if (_refreshing) return;
+    if (!navigator.onLine) {
+      btn.setAttribute("data-offline", "1");
+      setTimeout(() => btn.removeAttribute("data-offline"), 1200);
+      return;
+    }
+    _refreshing = true;
+    btn.classList.add("spinning");
+    btn.disabled = true;
+    const results = await Promise.allSettled([fetchClubFeed(), fullSync()]);
+    btn.classList.remove("spinning");
+    btn.disabled = false;
+    _refreshing = false;
+    // fetchClubFeed already surfaces its own retry UI in the Nearby list
+    // on failure, so we only escalate when fullSync rejected.
+    if (results[1].status === "rejected") {
+      $("#syncOpen").classList.add("flash");
+      setTimeout(() => $("#syncOpen").classList.remove("flash"), 1500);
+    }
+  };
+  $("#refreshBtn").addEventListener("click", onRefresh);
+
+  // Check for updates: force the SW update check, and if a new version is
+  // waiting, swap it in via SKIP_WAITING + reload. All three outcomes render
+  // inline via the existing setMsg helper.
+  const onCheckUpdate = async () => {
+    const btn = $("#btnCheckUpdate");
+    btn.disabled = true;
+    const origLabel = btn.textContent;
+    btn.textContent = "Checking…";
+    setMsg("");
+    try {
+      if (!navigator.onLine) throw new Error("offline");
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (!reg) throw new Error("no registration");
+      await reg.update();
+      // After update() resolves, the browser has fetched the SW byte-by-byte.
+      // If a new SW is installing, wait for it to reach 'installed' (or time out).
+      if (reg.installing) {
+        await new Promise((resolve) => {
+          const worker = reg.installing;
+          const done = () => {
+            worker.removeEventListener("statechange", onChange);
+            resolve();
+          };
+          const onChange = () => {
+            if (worker.state === "installed" || worker.state === "activated" || worker.state === "redundant") done();
+          };
+          worker.addEventListener("statechange", onChange);
+          setTimeout(done, 5000);
+        });
+      }
+      if (reg.waiting) {
+        // New version ready — replace the row's right side with a Reload button.
+        btn.textContent = origLabel;
+        btn.disabled = false;
+        const oldBtn = $("#btnCheckUpdate");
+        const reload = document.createElement("button");
+        reload.className = "btn red";
+        reload.id = "btnReloadNew";
+        reload.textContent = "Reload";
+        oldBtn.replaceWith(reload);
+        setMsg("New version available");
+        reload.addEventListener("click", () => {
+          // iOS standalone PWA's controllerchange fires unreliably, and reg.waiting
+          // may be null if a prior SW version skipped waiting on install. Belt and
+          // braces: post the message if we can, then reload on controllerchange OR
+          // a 1500ms fallback — whichever happens first. doReload is idempotent.
+          let reloaded = false;
+          const doReload = () => { if (!reloaded) { reloaded = true; location.reload(); } };
+          navigator.serviceWorker.addEventListener("controllerchange", doReload, { once: true });
+          setTimeout(doReload, 1500);
+          if (reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
+        });
+      } else {
+        setMsg("You're up to date · " + APP_VERSION);
+        btn.textContent = origLabel;
+        btn.disabled = false;
+      }
+    } catch (err) {
+      setMsg("Couldn't check — you're offline.");
+      btn.textContent = origLabel;
+      btn.disabled = false;
+    }
+  };
+  $("#btnCheckUpdate").addEventListener("click", onCheckUpdate);
 
   // Online/offline indicator on the sync button
   const reflectOnline = () => {
