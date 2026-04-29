@@ -1,0 +1,19 @@
+{
+  "name": "Negroni Club",
+  "short_name": "Negroni Club",
+  "description": "An apertivo, in three equal parts. A quiet society for rating Negronis on the four-axis NQDI.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#B83A2E",
+  "background_color": "#F2ECDF",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
