@@ -8,11 +8,11 @@
 //   /manifest.json                  → cache-first
 //   fonts.googleapis.com            → stale-while-revalidate (CSS small, refresh in background)
 //   fonts.gstatic.com (woff2)       → cache-first (font binaries are immutable per URL)
-//   CARTO map tiles                 → cache-first
+//   OpenStreetMap tiles             → cache-first
 //   /club/feed                      → network-first, cache fallback
 //   everything else (auth, pod, …)  → network-only
 
-const VERSION     = "v61";
+const VERSION     = "v62";
 const SHELL_CACHE = `nc-shell-${VERSION}`;
 const TILE_CACHE  = `nc-tiles-${VERSION}`;
 const FEED_CACHE  = `nc-feed-${VERSION}`;
@@ -63,7 +63,7 @@ const isShell = (url) =>
 
 const isFontsCss     = (url) => url.hostname === "fonts.googleapis.com";
 const isFontsBinary  = (url) => url.hostname === "fonts.gstatic.com";
-const isTile         = (url) => url.hostname.endsWith(".basemaps.cartocdn.com");
+const isTile         = (url) => url.hostname === "tile.openstreetmap.org";
 const isFeed         = (url) =>
   url.origin === self.location.origin && url.pathname === "/club/feed";
 

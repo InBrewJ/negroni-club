@@ -20,19 +20,20 @@ REMOTE_DIR="${REMOTE_DIR:-/tmp}"
 CONTAINER="${CONTAINER:-proto-negroni-club}"
 DATA_VOLUME="${DATA_VOLUME:-proto-negroni-club-data}"
 PORT="${PORT:-3300}"                       # host port (bound to 127.0.0.1; nginx proxies to it)
-ORIGIN="${ORIGIN:-https://www.negroni.club}"
+ORIGIN="${ORIGIN:-https://nc.dryark.uk}"
+ORIGINS="${ORIGINS:-https://nc.dryark.uk,https://negroni.club,https://www.negroni.club}"
 RP_ID="${RP_ID:-negroni.club}"
 
 echo "→ remote: ${SSH_TARGET}"
 echo "  image:  ${IMAGE}:${TAG}"
 echo "  bind:   127.0.0.1:${PORT} → container :3000"
-echo "  origin: ${ORIGIN}   rpid: ${RP_ID}"
+echo "  origins: ${ORIGINS}   rpid: ${RP_ID}"
 
 ssh ${SSH_OPTS} "${SSH_TARGET}" \
   IMAGE="${IMAGE}" TAG="${TAG}" TARFILE="${TARFILE}" \
   REMOTE_DIR="${REMOTE_DIR}" CONTAINER="${CONTAINER}" \
   DATA_VOLUME="${DATA_VOLUME}" PORT="${PORT}" \
-  ORIGIN="${ORIGIN}" RP_ID="${RP_ID}" \
+  ORIGIN="${ORIGIN}" ORIGINS="${ORIGINS}" RP_ID="${RP_ID}" \
   bash -s <<'REMOTE'
 set -euo pipefail
 
@@ -59,6 +60,7 @@ docker run -d \
   -p "127.0.0.1:${PORT}:3000" \
   -v "${DATA_VOLUME}:/app/data" \
   -e ORIGIN="${ORIGIN}" \
+  -e ORIGINS="${ORIGINS}" \
   -e RP_ID="${RP_ID}" \
   "${IMAGE}:${TAG}" >/dev/null
 

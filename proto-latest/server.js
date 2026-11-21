@@ -21,6 +21,10 @@ const HOST     = process.env.HOST || "0.0.0.0";
 const RP_NAME  = "Negroni Club";
 const RP_ID    = process.env.RP_ID || "localhost";
 const ORIGIN   = process.env.ORIGIN || `http://localhost:${PORT}`;
+const ORIGINS  = (process.env.ORIGINS || ORIGIN)
+  .split(",")
+  .map((s) => s.trim().replace(/\/+$/, ""))
+  .filter(Boolean);
 const DATA_DIR = process.env.DATA_DIR || __dirname;
 
 // =============================================================
@@ -134,7 +138,7 @@ const labelFromUA = (ua = "") =>
 const sessionCookie = () => ({
   httpOnly: true,
   sameSite: "lax",
-  secure: ORIGIN.startsWith("https://"),
+  secure: ORIGINS.some((o) => o.startsWith("https://")),
   maxAge: SESSION_TTL_MS,
   path: "/",
 });
@@ -252,7 +256,7 @@ app.post("/webauthn/register/finish", async (req, res) => {
     verification = await verifyRegistrationResponse({
       response,
       expectedChallenge: cr.challenge,
-      expectedOrigin: ORIGIN,
+      expectedOrigin: ORIGINS,
       expectedRPID: RP_ID,
     });
   } catch (err) {
@@ -335,7 +339,7 @@ app.post("/webauthn/authenticate/finish", async (req, res) => {
     verification = await verifyAuthenticationResponse({
       response,
       expectedChallenge: challenge,
-      expectedOrigin: ORIGIN,
+      expectedOrigin: ORIGINS,
       expectedRPID: RP_ID,
       credential: {
         id: credRow.credential_id,
@@ -625,6 +629,15 @@ app.delete("/club/feed/:pubId", requireSession, (req, res) => {
 });
 
 // =============================================================
+// WebAuthn Related Origin Requests (allows nc.dryark.uk to use RP_ID=negroni.club passkeys)
+// =============================================================
+app.get("/.well-known/webauthn", (_req, res) => {
+  const httpsOrigins = ORIGINS.filter((o) => o.startsWith("https://"));
+  res.setHeader("Cache-Control", "public, max-age=3600");
+  res.type("application/json").json({ origins: httpsOrigins });
+});
+
+// =============================================================
 // static (index.html, etc.)
 // =============================================================
 app.use("/vendor", express.static(
@@ -643,7 +656,7 @@ app.use(express.static(__dirname, {
 }));
 
 app.listen(PORT, HOST, () => {
-  console.log(`Negroni Club running on ${ORIGIN}`);
+  console.log(`Negroni Club running on ${ORIGINS.join(", ")}`);
   console.log(`  bind  = ${HOST}:${PORT}`);
   console.log(`  RP_ID = ${RP_ID}`);
   console.log(`  data  = ${join(DATA_DIR, "data.db")}`);

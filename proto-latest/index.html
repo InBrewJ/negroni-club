@@ -469,6 +469,9 @@
     margin:14px 0 18px;background:var(--paper-2);
   }
   .leaflet-container{background:var(--paper-2);font-family:Inter,sans-serif}
+  [data-theme="dark"] #clubMap .leaflet-tile-pane{
+    filter:invert(100%) hue-rotate(180deg) brightness(92%) contrast(88%);
+  }
   .leaflet-tooltip{
     background:var(--paper);border:1px solid var(--rule);color:var(--ink);
     box-shadow:0 4px 12px rgba(27,22,17,.12);border-radius:6px;padding:6px 10px;
@@ -1687,10 +1690,8 @@
     const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
     return v || fallback;
   };
-  const tileSkin = () =>
-    document.documentElement.dataset.theme === "dark" ? "dark_all" : "light_all";
-  const tileUrlFor = (skin) =>
-    `https://{s}.basemaps.cartocdn.com/${skin}/{z}/{x}/{y}{r}.png`;
+  const OSM_TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+  const OSM_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
   const renderClubMap = (clusters, userLoc) => {
     if (!window.L) { $("#clubMap").style.display = "none"; return; }
@@ -1700,10 +1701,9 @@
       clubMap = L.map("clubMap", { zoomControl: true, attributionControl: true });
     }
     if (!clubTileLayer) {
-      clubTileLayer = L.tileLayer(tileUrlFor(tileSkin()), {
-        subdomains: "abcd",
+      clubTileLayer = L.tileLayer(OSM_TILE_URL, {
         maxZoom: 19,
-        attribution: "&copy; OSM &middot; CARTO",
+        attribution: OSM_ATTRIBUTION,
       }).addTo(clubMap);
     }
     clubMapLayers.forEach(l => clubMap.removeLayer(l));
@@ -2272,11 +2272,8 @@
   };
   const applyThemeToMap = () => {
     if (!clubMap || !clubTileLayer) return;
-    clubMap.removeLayer(clubTileLayer);
-    clubTileLayer = L.tileLayer(tileUrlFor(tileSkin()), {
-      subdomains: "abcd", maxZoom: 19, attribution: "&copy; OSM &middot; CARTO",
-    }).addTo(clubMap);
-    // Re-stroke markers (fillColor/color are baked at creation time).
+    // Tile dark/light styling updates via CSS filter on .leaflet-tile-pane;
+    // re-stroke markers (fillColor/color are baked at creation time).
     if (clubLastClusters.length || state.location) renderClubMap(clubLastClusters, state.location);
   };
   $("#themeToggle")?.addEventListener("click", () => {
@@ -2290,7 +2287,7 @@
 
   // Bumped in lockstep with VERSION in sw.js. The page can't read sw.js's
   // VERSION directly, so this duplication is accepted release discipline.
-  const APP_VERSION = "v61";
+  const APP_VERSION = "v62";
   document.getElementById("appVersionShow").textContent = APP_VERSION;
 
   // ---- Service worker: app shell + map tiles cached for offline use ----
